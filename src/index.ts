@@ -19,21 +19,24 @@
  */
 
 // Module 1: Claude API Service
-export * from './services/claude';
+// export * from './services/claude'; // TODO: Uncomment when Module 1 is implemented
 
 // Module 2: Vision Service
-export * from './services/vision';
+// export * from './services/vision'; // TODO: Uncomment when Module 2 is implemented
 
 // Module 3: Context Parser
-export * from './services/context';
+export { ContextParser, contextParser } from './services/context';
 
 // Module 4: Recommender Engine
-export * from './engine/recommender';
+// export * from './engine/recommender'; // TODO: Uncomment when Module 4 is implemented
 
 // Shared types
 export * from './types';
 
 // Start API server when run directly
 if (require.main === module) {
-  require('./api');
+  console.log('ai-attire entry point');
+  console.log('Module 3 (Context Parser) is implemented.');
+  console.log('To start the API server, implement Module 5 (api.ts) first.');
+  // require('./api'); // TODO: Uncomment when Module 5 is implemented
 }
