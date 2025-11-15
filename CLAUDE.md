@@ -264,6 +264,38 @@ Required in `.env` (copy from `.env.example`):
 - `PORT` - Optional, defaults to 3000
 - `NODE_ENV` - Optional, defaults to "development"
 
+## ⚠️ IMPORTANT: API Key Usage for Claude Agents
+
+**This section is for Claude Code agents running tests in the cloud.**
+
+If you are running Claude agents in parallel to implement multiple modules, they may need the `CLAUDE_API_KEY` for testing. Follow these guidelines:
+
+### When to Use the API Key
+- ✅ **DO use** the API key only when **absolutely necessary** for:
+  - Testing Module 1 (Claude API Service) actual API calls
+  - Testing Module 2 (Vision Service) with real images
+  - Testing the full end-to-end flow
+  - **DO NOT use** for unit tests that can use mocks/stubs
+
+### Minimize API Usage
+- **Use mocks** for most tests - all tests should pass with mock services
+- **Limit API calls** - each call costs money from your budget
+- **Run locally first** - test locally with `.env` before running in cloud
+- **Test once** - don't repeat the same API call test multiple times
+- **Use minimal tokens** - set `maxTokens` to a low value for quick tests (50-100 tokens)
+
+### Budget Management
+- Budget: **$5 for 4-hour hackathon**
+- Estimated cost: ~$0.001 per minimal test
+- With proper mocking, you can run 100+ unit tests for ~$0.01
+
+### For Cloud Agent Implementation
+If implementing modules in Claude Code cloud environment and you need API testing:
+1. Add `CLAUDE_API_KEY` to your Claude Code cloud environment (Settings → Environment)
+2. Set Network Access to "Trusted" for external API calls
+3. **Only run necessary tests** - don't run the same test twice
+4. **Use mocks** for development, only test with real API when validating the whole system
+
 ## Success Criteria for Complete Project
 
 - [ ] All 5 modules implemented and tested

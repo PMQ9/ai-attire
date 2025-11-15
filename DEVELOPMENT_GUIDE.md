@@ -71,6 +71,8 @@ npm test
 npm test -- --watch
 ```
 
+**⚠️ BUDGET NOTE**: Use mocks for 99% of tests to save API costs. Only run real API tests when necessary. See CLAUDE.md → "API Key Usage for Claude Agents" for details on keeping costs under control.
+
 ### When Stuck
 
 1. **Read the docs** - `docs/MODULE_X_*.md` has examples

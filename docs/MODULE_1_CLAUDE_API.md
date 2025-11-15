@@ -135,6 +135,41 @@ CLAUDE_API_KEY=sk-ant-...
 - Use shorter prompts where possible
 - Consider token usage in logging
 
+## ⚠️ Testing with Real API (Budget Conscious)
+
+**IMPORTANT**: This module requires actual API calls. When testing:
+
+### Testing Strategy
+- **Use mocks for unit tests**: 99% of tests should use mock implementations
+- **One integration test**: Create ONE real API test to verify the connection works
+- **Minimal tokens**: Use `maxTokens: 50` in test to keep cost low (~$0.001 per test)
+
+### Test Structure Example
+```typescript
+describe("ClaudeAPIService", () => {
+  // ✅ Mock test (no API cost)
+  it("should parse response correctly", async () => {
+    const mockService = new MockClaudeService();
+    const response = await mockService.callClaude("test");
+    expect(response).toBe("mocked response");
+  });
+
+  // ✅ One real API test (minimal cost - ~$0.001)
+  it("should call real Claude API with minimal tokens", async () => {
+    const service = new ClaudeService();
+    const response = await service.callClaude("Hi", { maxTokens: 50 });
+    expect(response).toBeTruthy();
+    // This test runs ONCE and costs ~$0.001
+  });
+});
+```
+
+### Dont's
+- ❌ Don't call the real API for every test run
+- ❌ Don't test the same prompt multiple times
+- ❌ Don't use high token limits (keep it 50-100)
+- ❌ Don't re-test if the test already passed once
+
 ---
 
 **Status**: 🔲 Not started

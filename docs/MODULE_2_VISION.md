@@ -147,6 +147,44 @@ const clothingAnalysis = await visionService.analyzeClothing(imageBase64);
 - Include validation for expected JSON structure
 - Handle partial/unclear images gracefully
 
+## ⚠️ Testing with Real Images (Budget Conscious)
+
+**IMPORTANT**: Vision API calls cost more than text-only calls (images increase token usage). When testing:
+
+### Testing Strategy
+- **Use mock images for most tests**: Create mock image analysis for 99% of tests
+- **One real image test**: Create ONE real vision test with an actual image to verify it works
+- **Minimal image**: Use a simple, small image to keep token cost low
+- **Minimal tokens**: Keep responses short (~50 tokens, ~$0.002 per test)
+
+### Testing Example
+```typescript
+describe("VisionService", () => {
+  // ✅ Mock test (no API cost)
+  it("should parse clothing analysis correctly", async () => {
+    const mockService = new MockVisionService();
+    const analysis = await mockService.analyzeClothing(mockImageBase64);
+    expect(analysis.items).toBeTruthy();
+    expect(analysis.colorPalette).toBeTruthy();
+  });
+
+  // ✅ One real image test (cost ~$0.002)
+  it("should analyze real image with Claude Vision", async () => {
+    const visionService = new VisionService(claudeService);
+    // Use a simple test image, not a large high-res image
+    const analysis = await visionService.analyzeClothing(testImageBase64);
+    expect(analysis.items.length).toBeGreaterThan(0);
+    // This test runs ONCE to validate Vision service works
+  });
+});
+```
+
+### Dont's
+- ❌ Don't call Vision API multiple times with the same image
+- ❌ Don't use high-resolution images in tests
+- ❌ Don't test with 10 different images
+- ❌ Don't re-test the same image if the test already passed
+
 ---
 
 **Status**: 🔲 Waiting for Module 1
