@@ -95,7 +95,26 @@ Add entries below as modules are implemented. Use this template:
 
 ### Module 4: Recommender Engine
 
-**Status**: 🔲 Not Started
+**Status**: ✅ Complete
+
+- **What was done**: Implemented RecommenderEngine that synthesizes clothing analysis and occasion context into personalized outfit recommendations using Claude AI. Builds comprehensive prompts with wardrobe items and occasion details, calls Claude API, parses JSON responses into structured recommendations with cultural tips, shopping advice, and "what not to wear" guidance.
+- **Tested**: Yes - 13 test suites with 78+ total tests passing (includes 40+ tests for Module 4)
+- **Tests added**: `src/engine/__tests__/recommender.test.ts` (comprehensive test coverage for happy path, error handling, edge cases, integration with Claude API)
+- **Dependencies met**: Yes (Module 1: Claude API ✅, Module 2: Vision ✅, Module 3: Context Parser ✅)
+- **Files changed**:
+  - `src/engine/recommender.ts` (new implementation)
+  - `src/engine/__tests__/recommender.test.ts` (new test file)
+- **Key features**:
+  - Generates 3-5 specific outfit recommendations using user's wardrobe items
+  - Provides cultural tips for location-specific events
+  - Includes "what not to wear" suggestions
+  - Offers shopping tips for missing essential pieces
+  - Validates input (requires clothing items and occasion)
+  - Handles JSON responses with extra text around them
+  - Passes detailed prompts to Claude with wardrobe, occasion, formality, weather, and cultural context
+  - Supports optional fields (location, cultural tips, shopping tips)
+  - Error handling for malformed responses and missing required fields
+- **Time taken**: 30 minutes
 
 ---
 
@@ -126,7 +145,7 @@ Phase 1 (0:00-1:30): Independent Modules
 
 Phase 2 (1:30-3:00): Dependent Modules
 - [x] Module 2: Vision Service
-- [ ] Module 4: Recommender Engine
+- [x] Module 4: Recommender Engine
 
 Phase 3 (3:00-4:00): Integration
 - [ ] Module 5: API Server
