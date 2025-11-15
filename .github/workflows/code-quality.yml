@@ -1,0 +1,51 @@
+name: Code Quality Checks
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.x
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: TypeScript type checking
+      run: npm run build
+
+    - name: Check for compilation errors
+      run: npx tsc --noEmit
+
+    - name: Verify project structure
+      run: |
+        echo "Checking required files..."
+        test -f tsconfig.json && echo "✓ tsconfig.json exists"
+        test -f package.json && echo "✓ package.json exists"
+        test -f .env.example && echo "✓ .env.example exists"
+        test -f src/types.ts && echo "✓ src/types.ts exists"
+        test -f src/api.ts && echo "✓ src/api.ts exists"
+        test -d src/services && echo "✓ src/services directory exists"
+        test -d src/engine && echo "✓ src/engine directory exists"
+        test -d tests && echo "✓ tests directory exists"
+
+    - name: Verify critical interfaces in types.ts
+      run: |
+        echo "Checking for critical interfaces..."
+        grep -q "interface ClothingAnalysis" src/types.ts && echo "✓ ClothingAnalysis interface"
+        grep -q "interface OccasionContext" src/types.ts && echo "✓ OccasionContext interface"
+        grep -q "interface RecommendationResponse" src/types.ts && echo "✓ RecommendationResponse interface"
+        grep -q "interface ClaudeAPIService" src/types.ts && echo "✓ ClaudeAPIService interface"
+        grep -q "interface VisionService" src/types.ts && echo "✓ VisionService interface"
+        grep -q "interface ContextParser" src/types.ts && echo "✓ ContextParser interface"
