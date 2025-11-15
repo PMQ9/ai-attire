@@ -17,7 +17,9 @@
       "Bash(response.json)",
       "Bash(cat:*)",
       "Bash(xxd:*)",
-      "Bash(netstat:*)"
+      "Bash(netstat:*)",
+      "Bash(npm install:*)",
+      "Bash(npm uninstall:*)"
     ],
     "deny": [],
     "ask": []
