@@ -17,19 +17,13 @@
 
 import {
   ClaudeAPIService,
-  VisionService,
-  ContextParser,
   RecommenderEngine as IRecommenderEngine,
   RecommendationRequest,
   RecommendationResponse,
 } from "../types";
 
 export class RecommenderEngine implements IRecommenderEngine {
-  constructor(
-    private claudeService: ClaudeAPIService,
-    private visionService: VisionService,
-    private contextParser: ContextParser
-  ) {}
+  constructor(private claudeService: ClaudeAPIService) {}
 
   /**
    * Generate personalized fashion recommendations
@@ -247,9 +241,7 @@ Return your response as VALID JSON with this exact structure (no markdown code b
  * Useful for dependency injection
  */
 export function createRecommenderEngine(
-  claudeService: ClaudeAPIService,
-  visionService: VisionService,
-  contextParser: ContextParser
+  claudeService: ClaudeAPIService
 ): IRecommenderEngine {
-  return new RecommenderEngine(claudeService, visionService, contextParser);
+  return new RecommenderEngine(claudeService);
 }

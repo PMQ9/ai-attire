@@ -1,10 +1,6 @@
 import { RecommenderEngine } from "../recommender";
 import {
   ClaudeAPIService,
-  VisionService,
-  ContextParser as IContextParser,
-  ClothingAnalysis,
-  OccasionContext,
   RecommendationRequest,
 } from "../../types";
 
@@ -139,53 +135,14 @@ class ErrorMockService implements ClaudeAPIService {
   }
 }
 
-/**
- * Mock Vision Service (not used directly by RecommenderEngine, but required for constructor)
- */
-class MockVisionService implements VisionService {
-  async analyzeClothing(_imageBase64: string): Promise<ClothingAnalysis> {
-    return {
-      items: [
-        { type: "shirt", color: "blue", style: "casual" },
-        { type: "pants", color: "black", style: "formal" },
-      ],
-      overallStyle: "business-casual",
-      colorPalette: ["blue", "black"],
-      summary: "Mock wardrobe",
-    };
-  }
-}
-
-/**
- * Mock Context Parser (not used directly by RecommenderEngine, but required for constructor)
- */
-class MockContextParser implements IContextParser {
-  parseOccasion(_input: string): OccasionContext {
-    return {
-      occasion: "business",
-      location: "Thailand",
-      formality: "business-casual",
-      tone: ["professional"],
-      rawInput: "business meeting in Thailand",
-    };
-  }
-}
 
 describe("RecommenderEngine", () => {
   let recommender: RecommenderEngine;
   let mockClaudeService: MockClaudeService;
-  let mockVisionService: MockVisionService;
-  let mockContextParser: MockContextParser;
 
   beforeEach(() => {
     mockClaudeService = new MockClaudeService();
-    mockVisionService = new MockVisionService();
-    mockContextParser = new MockContextParser();
-    recommender = new RecommenderEngine(
-      mockClaudeService,
-      mockVisionService,
-      mockContextParser
-    );
+    recommender = new RecommenderEngine(mockClaudeService);
   });
 
   describe("generateRecommendations - Happy Path", () => {
@@ -269,11 +226,7 @@ describe("RecommenderEngine", () => {
       };
 
       const minimalService = new MinimalResponseMockService();
-      const minimalRecommender = new RecommenderEngine(
-        minimalService,
-        mockVisionService,
-        mockContextParser
-      );
+      const minimalRecommender = new RecommenderEngine(minimalService);
 
       const result = await minimalRecommender.generateRecommendations(
         requestWithoutLocation
@@ -285,11 +238,7 @@ describe("RecommenderEngine", () => {
 
     it("should handle response with JSON embedded in text", async () => {
       const jsonWithTextService = new JsonWithExtraTextMockService();
-      const jsonWithTextRecommender = new RecommenderEngine(
-        jsonWithTextService,
-        mockVisionService,
-        mockContextParser
-      );
+      const jsonWithTextRecommender = new RecommenderEngine(jsonWithTextService);
 
       const result = await jsonWithTextRecommender.generateRecommendations(validRequest);
 
@@ -375,11 +324,7 @@ describe("RecommenderEngine", () => {
 
     it("should throw error when Claude API call fails", async () => {
       const errorService = new ErrorMockService();
-      const errorRecommender = new RecommenderEngine(
-        errorService,
-        mockVisionService,
-        mockContextParser
-      );
+      const errorRecommender = new RecommenderEngine(errorService);
 
       const validRequest: RecommendationRequest = {
         clothingAnalysis: {
@@ -403,11 +348,7 @@ describe("RecommenderEngine", () => {
 
     it("should throw error when response is malformed JSON", async () => {
       const malformedService = new MalformedJsonMockService();
-      const malformedRecommender = new RecommenderEngine(
-        malformedService,
-        mockVisionService,
-        mockContextParser
-      );
+      const malformedRecommender = new RecommenderEngine(malformedService);
 
       const validRequest: RecommendationRequest = {
         clothingAnalysis: {
@@ -431,11 +372,7 @@ describe("RecommenderEngine", () => {
 
     it("should throw error when response is missing required fields", async () => {
       const incompleteService = new IncompleteJsonMockService();
-      const incompleteRecommender = new RecommenderEngine(
-        incompleteService,
-        mockVisionService,
-        mockContextParser
-      );
+      const incompleteRecommender = new RecommenderEngine(incompleteService);
 
       const validRequest: RecommendationRequest = {
         clothingAnalysis: {
@@ -547,11 +484,7 @@ describe("RecommenderEngine", () => {
 
     it("should handle responses with null optional fields", async () => {
       const minimalService = new MinimalResponseMockService();
-      const minimalRecommender = new RecommenderEngine(
-        minimalService,
-        mockVisionService,
-        mockContextParser
-      );
+      const minimalRecommender = new RecommenderEngine(minimalService);
 
       const request: RecommendationRequest = {
         clothingAnalysis: {
