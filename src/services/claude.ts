@@ -126,21 +126,49 @@ export class ClaudeService implements ClaudeAPIService {
         console.log(`[Claude Vision] Analyzing image with prompt: ${prompt.substring(0, 100)}...`);
       }
 
-      // Determine media type from base64 header (if present)
-      // If no prefix, default to jpg
+      // Determine media type from base64 header (if present) or magic bytes
       let mediaType: "image/jpeg" | "image/png" | "image/gif" | "image/webp" = "image/jpeg";
-      if (imageBase64.startsWith("data:image/png")) {
-        mediaType = "image/png";
-      } else if (imageBase64.startsWith("data:image/gif")) {
-        mediaType = "image/gif";
-      } else if (imageBase64.startsWith("data:image/webp")) {
-        mediaType = "image/webp";
-      }
+      let base64Data = imageBase64;
 
       // Remove data URI prefix if present
-      let base64Data = imageBase64;
       if (imageBase64.includes(",")) {
+        const prefix = imageBase64.split(",")[0];
         base64Data = imageBase64.split(",")[1];
+
+        // Check for explicit media type in data URI
+        if (prefix.includes("image/png")) {
+          mediaType = "image/png";
+        } else if (prefix.includes("image/gif")) {
+          mediaType = "image/gif";
+        } else if (prefix.includes("image/webp")) {
+          mediaType = "image/webp";
+        }
+      } else {
+        // No data URI prefix, detect from magic bytes (first few characters of base64)
+        // Decode first 12 bytes to check magic numbers
+        try {
+          const buffer = Buffer.from(base64Data.substring(0, 24), "base64");
+
+          // PNG: 89 50 4E 47
+          if (buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4e && buffer[3] === 0x47) {
+            mediaType = "image/png";
+          }
+          // JPEG: FF D8 FF
+          else if (buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) {
+            mediaType = "image/jpeg";
+          }
+          // GIF: 47 49 46
+          else if (buffer[0] === 0x47 && buffer[1] === 0x49 && buffer[2] === 0x46) {
+            mediaType = "image/gif";
+          }
+          // WEBP: RIFF ... WEBP
+          else if (buffer[0] === 0x52 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x46) {
+            mediaType = "image/webp";
+          }
+        } catch {
+          // If detection fails, default to jpeg
+          mediaType = "image/jpeg";
+        }
       }
 
       const response = await this.client.messages.create({

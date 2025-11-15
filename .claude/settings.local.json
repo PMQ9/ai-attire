@@ -11,7 +11,13 @@
       "Bash(then cp .env.example .env)",
       "Bash(else echo \".env already exists\")",
       "Bash(fi)",
-      "Bash(npx ts-node:*)"
+      "Bash(npx ts-node:*)",
+      "Bash(curl:*)",
+      "Bash(pkill:*)",
+      "Bash(response.json)",
+      "Bash(cat:*)",
+      "Bash(xxd:*)",
+      "Bash(netstat:*)"
     ],
     "deny": [],
     "ask": []
