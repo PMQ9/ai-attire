@@ -42,7 +42,7 @@ ai-attire/
 | Module | File | Responsibility | Status |
 |--------|------|-----------------|--------|
 | **1. Claude API** | `src/services/claude.ts` | Wrapper for Claude API calls, prompt engineering | ✅ |
-| **2. Vision Service** | `src/services/vision.ts` | Use Claude Vision to analyze clothing in images | 🔲 |
+| **2. Vision Service** | `src/services/vision.ts` | Use Claude Vision to analyze clothing in images | ✅ |
 | **3. Context Parser** | `src/services/context.ts` | Parse occasion/location input (wedding, business, etc.) | ✅ |
 | **4. Recommender Engine** | `src/engine/recommender.ts` | Combine vision + context → personalized advice | 🔲 |
 | **5. API Server** | `src/api.ts` | Express endpoints to tie everything together | 🔲 |
