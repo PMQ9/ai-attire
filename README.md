@@ -72,6 +72,19 @@ curl -X POST http://localhost:3000/analyze \
   -F "occasion=wedding in Japan"
 ```
 
+### Current Status: API-Only ⚙️
+
+The backend is **fully functional** with a complete REST API. The frontend is **not yet implemented**.
+
+**How to use:**
+- Start the API server: `npm run dev` (runs on http://localhost:3000)
+- Access via cURL, Postman, or any HTTP client
+- No web UI currently - **frontend development is in progress**
+
+**Frontend coming soon** with:
+1. **File Upload Mode**: Browse and select image from disk
+2. **Webcam Capture Mode**: Take a photo directly from your device's webcam
+
 ## 📋 Data Flow
 
 ```
@@ -116,13 +129,24 @@ API Response → User gets advice
 - [Module Guides](docs/) - Implementation guides for each module
 - [API Endpoints](docs/MODULE_5_API.md) - REST endpoint specifications
 
-## ✅ MVP Success Criteria
+## ✅ MVP Status
 
-- [ ] Can upload an image of clothing
-- [ ] Can describe an occasion/context
-- [ ] Claude API analyzes and provides recommendations
-- [ ] API returns structured attire advice
-- [ ] Works end-to-end (image → recommendation)
+### Backend (API) - COMPLETE ✅
+- [x] Can upload an image of clothing (via API)
+- [x] Can describe an occasion/context (via API)
+- [x] Claude API analyzes and provides recommendations
+- [x] API returns structured attire advice
+- [x] Works end-to-end (image → recommendation)
+- [x] All 128 unit tests passing
+- [x] TypeScript compilation successful
+- [x] API health endpoint operational
+
+### Frontend (UI) - IN DEVELOPMENT 🔄
+- [ ] Web interface (HTML/CSS/JavaScript)
+- [ ] **Option 1**: Upload image from disk
+- [ ] **Option 2**: Capture image from webcam
+- [ ] Display recommendations in user-friendly format
+- [ ] Show cultural tips and shopping suggestions
 
 ## 🎓 Example Usage
 
@@ -146,6 +170,27 @@ curl -X POST http://localhost:3000/analyze \
   "culturalTips": "Business in Thailand values respect and formality - avoid showing shoulders"
 }
 ```
+
+## 🎨 Frontend Development (In Progress)
+
+A frontend UI is being developed to make the API accessible through a web browser.
+
+### Frontend Features (Planned)
+- **HTML/CSS/JavaScript** web interface
+- **Two input modes**:
+  1. **File Upload**: Select and upload a wardrobe image from disk
+  2. **Webcam Capture**: Take a live photo from your device's camera
+- **Real-time recommendations** display
+- **Responsive design** for desktop and mobile
+
+### Frontend Integration
+The frontend will call the existing API endpoints:
+- `GET /health` - Check service status
+- `POST /analyze` - Send image + occasion → receive recommendations
+
+**Note**: The backend API is production-ready and fully functional. Frontend development is a separate module that will consume these endpoints.
+
+---
 
 ## 📝 License
 

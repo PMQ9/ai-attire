@@ -175,6 +175,37 @@ Add entries as modules are integrated and tested together:
 
 ---
 
+## Bug Fixes & Improvements
+
+### Image Format Detection Fix - Complete ✅
+
+**Status**: ✅ Complete
+
+- **What was done**: Fixed PNG image format detection in Claude Vision API calls. Previously, the service defaulted to JPEG format for images without a data URI prefix, causing errors with PNG files. Implemented magic byte detection to automatically identify image format (PNG: 0x89504E47, JPEG: 0xFFD8FF, GIF: 0x474946, WebP: 0x52494646).
+- **Tested**: Yes - Verified with Vietnamese wedding attire PNG image
+- **Files changed**: `src/services/claude.ts` (improved format detection logic)
+- **Result**: API now correctly handles PNG, JPEG, GIF, and WebP formats
+- **Time taken**: 15 minutes
+
+---
+
+## Documentation Updates - Complete ✅
+
+**Status**: ✅ Complete
+
+- **What was done**: Updated README.md with API-only status, MVP checklist, and frontend development roadmap. Created comprehensive FRONTEND_SPEC.md with detailed UI requirements, API integration guide, and implementation checklist for frontend developers.
+- **Files changed**:
+  - `README.md` (added API-only status section, MVP checklist, frontend roadmap)
+  - `docs/FRONTEND_SPEC.md` (new - comprehensive frontend specification)
+- **Key additions**:
+  - Clear distinction between API-only backend and planned frontend
+  - Detailed frontend feature requirements (File Upload + Webcam modes)
+  - Complete API endpoint documentation for frontend integration
+  - Frontend implementation checklist and technical requirements
+- **Time taken**: 20 minutes
+
+---
+
 ## Hackathon Timeline
 
 Use this section to track overall progress:
