@@ -14,7 +14,7 @@ import { ClaudeAPIService, CallOptions } from "../types";
 
 export class ClaudeService implements ClaudeAPIService {
   private client: Anthropic;
-  private model: string = "claude-3-5-sonnet-20241022";
+  private model: string = "claude-sonnet-4-5-20250929";
 
   constructor(apiKey?: string) {
     const key = apiKey || process.env.CLAUDE_API_KEY;
@@ -51,18 +51,30 @@ export class ClaudeService implements ClaudeAPIService {
         console.log(`[Claude API] Calling with prompt: ${prompt.substring(0, 100)}...`);
       }
 
-      const response = await this.client.messages.create({
+      const requestBody: any = {
         model: this.model,
         max_tokens: options?.maxTokens || 1024,
-        temperature: options?.temperature || 0.7,
-        top_p: options?.topP || 1.0,
         messages: [
           {
             role: "user",
             content: prompt,
           },
         ],
-      });
+      };
+
+      // Some models don't accept both temperature and top_p
+      if (options?.temperature !== undefined) {
+        requestBody.temperature = options.temperature;
+      } else {
+        requestBody.temperature = 0.7;
+      }
+
+      // Only add top_p if temperature is not specified
+      if (options?.temperature === undefined && options?.topP !== undefined) {
+        requestBody.top_p = options.topP;
+      }
+
+      const response = await this.client.messages.create(requestBody);
 
       // Extract text from response
       const textContent = response.content.find((block) => block.type === "text");
