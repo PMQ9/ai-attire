@@ -28,7 +28,10 @@ export * from './services/vision';
 export { ContextParser, contextParser } from './services/context';
 
 // Module 4: Recommender Engine
-// export * from './engine/recommender'; // TODO: Uncomment when Module 4 is implemented
+export { RecommenderEngine, createRecommenderEngine } from './engine/recommender';
+
+// Module 5: API Server
+export { app } from './api';
 
 // Shared types
 export * from './types';
@@ -39,6 +42,8 @@ if (require.main === module) {
   console.log('✅ Module 1 (Claude API) is implemented.');
   console.log('✅ Module 2 (Vision Service) is implemented.');
   console.log('✅ Module 3 (Context Parser) is implemented.');
-  console.log('⏳ Modules 4 & 5 are still being implemented...');
-  // require('./api'); // TODO: Uncomment when Module 5 is implemented
+  console.log('✅ Module 4 (Recommender Engine) is implemented.');
+  console.log('✅ Module 5 (API Server) is implemented.');
+  console.log('🚀 All modules complete! Starting API server...');
+  require('./api');
 }
