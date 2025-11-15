@@ -19,10 +19,10 @@
  */
 
 // Module 1: Claude API Service
-// export * from './services/claude'; // TODO: Uncomment when Module 1 is implemented
+export * from './services/claude';
 
 // Module 2: Vision Service
-// export * from './services/vision'; // TODO: Uncomment when Module 2 is implemented
+export * from './services/vision';
 
 // Module 3: Context Parser
 export { ContextParser, contextParser } from './services/context';
@@ -36,7 +36,9 @@ export * from './types';
 // Start API server when run directly
 if (require.main === module) {
   console.log('ai-attire entry point');
-  console.log('Module 3 (Context Parser) is implemented.');
-  console.log('To start the API server, implement Module 5 (api.ts) first.');
+  console.log('✅ Module 1 (Claude API) is implemented.');
+  console.log('✅ Module 2 (Vision Service) is implemented.');
+  console.log('✅ Module 3 (Context Parser) is implemented.');
+  console.log('⏳ Modules 4 & 5 are still being implemented...');
   // require('./api'); // TODO: Uncomment when Module 5 is implemented
 }
