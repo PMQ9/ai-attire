@@ -206,6 +206,42 @@ Add entries as modules are integrated and tested together:
 
 ---
 
+### Speech-to-Text Feature - Complete ✅
+
+**Status**: Implemented ✅
+
+- **What was done**: Added free, lightweight speech-to-text functionality using the Web Speech API. Users can now speak their occasion description instead of typing it. No additional API costs or dependencies required.
+- **Tested**: Yes - Build passes, all 128 existing tests still passing
+- **Tests added**: Frontend-only feature, tested through manual browser testing
+- **Dependencies met**: N/A (frontend-only implementation using browser's built-in API)
+- **Files changed**:
+  - `public/index.html` (added microphone button and speech status indicator)
+  - `public/app.js` (added ~85 lines of speech recognition logic with error handling)
+  - `public/styles.css` (added styling for mic button, listening animation, and status messages)
+  - `docs/SPEECH_TO_TEXT.md` (new - comprehensive documentation)
+  - `README.md` (added speech-to-text to project highlights)
+- **Key features**:
+  - Free Web Speech API integration (zero additional costs)
+  - Real-time speech transcription with visual feedback
+  - Animated microphone button (pulses red while listening)
+  - Multi-language support (currently configured for English)
+  - Browser compatibility detection (auto-hides button in unsupported browsers)
+  - Comprehensive error handling for common issues (no-speech, permission denied, network errors)
+  - Fully backward compatible (text input still works normally)
+  - Privacy-friendly (local processing in Chrome/Edge)
+- **Browser Support**: Chrome, Edge, Safari, Opera (auto-hides in Firefox)
+- **User Flow**:
+  1. Click microphone button next to occasion textarea
+  2. Grant microphone permission (first time only)
+  3. Speak occasion description
+  4. Text appears in real-time
+  5. Click again to stop or wait for auto-stop
+  6. Edit transcribed text if needed
+- **Cost Analysis**: $0 (vs. ~$0.006/min for OpenAI Whisper API)
+- **Time taken**: 30 minutes
+
+---
+
 ## Hackathon Timeline
 
 Use this section to track overall progress:

@@ -16,6 +16,7 @@
 - 📊 **Fully Tested** - 128 unit tests passing, 100% TypeScript strict mode
 - 🏗️ **Modular Architecture** - Designed for parallel development with 5 independent, testable modules
 - 🎯 **AI-Powered** - Leverages Claude's vision and language models for intelligent fashion advice
+- 🎤 **Speech-to-Text** - Free voice input using Web Speech API (no additional APIs required)
 - 🌍 **Cultural Intelligence** - Location-specific recommendations and etiquette tips
 - 💻 **Full-Stack** - Modern backend API (Express.js) + responsive web UI
 - ⚡ **Production Ready** - Comprehensive error handling, input validation, rate limiting support
