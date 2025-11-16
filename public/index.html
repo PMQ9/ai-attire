@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Attire - Your Personal Fashion Advisor</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>👔 AI Attire</h1>
+            <p class="subtitle">Your AI-Powered Personal Fashion Advisor</p>
+        </header>
+
+        <main>
+            <!-- Mode Selection -->
+            <div class="mode-selector">
+                <button id="uploadModeBtn" class="mode-btn active">
+                    📁 Upload Image
+                </button>
+                <button id="webcamModeBtn" class="mode-btn">
+                    📸 Use Webcam
+                </button>
+            </div>
+
+            <!-- Upload Mode -->
+            <div id="uploadMode" class="input-section active">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📸</div>
+                    <p>Click to upload or drag and drop</p>
+                    <p class="upload-hint">JPG, PNG, or GIF (max 10MB)</p>
+                    <input type="file" id="fileInput" accept="image/*" hidden>
+                </div>
+                <div id="uploadPreview" class="preview hidden">
+                    <img id="uploadedImage" alt="Uploaded clothing">
+                    <button id="removeUpload" class="remove-btn">✕ Remove</button>
+                </div>
+            </div>
+
+            <!-- Webcam Mode -->
+            <div id="webcamMode" class="input-section">
+                <div id="webcamContainer" class="webcam-container">
+                    <video id="webcam" autoplay playsinline></video>
+                    <canvas id="canvas" hidden></canvas>
+                    <div id="webcamControls" class="webcam-controls">
+                        <button id="startWebcam" class="btn btn-primary">
+                            Start Camera
+                        </button>
+                        <button id="captureBtn" class="btn btn-primary hidden">
+                            📷 Capture Photo
+                        </button>
+                        <button id="retakeBtn" class="btn btn-secondary hidden">
+                            🔄 Retake
+                        </button>
+                    </div>
+                </div>
+                <div id="webcamPreview" class="preview hidden">
+                    <img id="capturedImage" alt="Captured photo">
+                </div>
+            </div>
+
+            <!-- Occasion Input -->
+            <div class="occasion-section">
+                <label for="occasionInput">What's the occasion?</label>
+                <textarea
+                    id="occasionInput"
+                    placeholder="E.g., 'Business meeting in Tokyo', 'Casual dinner date', 'Beach wedding in Thailand'"
+                    rows="3"
+                ></textarea>
+                <p class="input-hint">Describe where you're going, the formality level, climate, or any preferences</p>
+            </div>
+
+            <!-- Analyze Button -->
+            <button id="analyzeBtn" class="btn btn-primary btn-large" disabled>
+                ✨ Get Fashion Advice
+            </button>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="loading hidden">
+                <div class="spinner"></div>
+                <p>Analyzing your wardrobe with AI...</p>
+            </div>
+
+            <!-- Results Section -->
+            <div id="resultsSection" class="results hidden">
+                <h2>Your Personalized Fashion Advice</h2>
+
+                <div class="result-card">
+                    <h3>📍 Occasion Details</h3>
+                    <div id="occasionDetails"></div>
+                </div>
+
+                <div class="result-card">
+                    <h3>👚 Wardrobe Analysis</h3>
+                    <div id="wardrobeAnalysis"></div>
+                </div>
+
+                <div class="result-card highlight">
+                    <h3>💡 Outfit Recommendations</h3>
+                    <div id="recommendations"></div>
+                </div>
+
+                <div class="result-card" id="culturalTipsCard">
+                    <h3>🌍 Cultural Tips</h3>
+                    <div id="culturalTips"></div>
+                </div>
+
+                <div class="result-card" id="shoppingCard">
+                    <h3>🛍️ Shopping Suggestions</h3>
+                    <div id="shoppingSuggestions"></div>
+                </div>
+
+                <button id="newAnalysisBtn" class="btn btn-secondary">
+                    ← Start New Analysis
+                </button>
+            </div>
+
+            <!-- Error State -->
+            <div id="errorState" class="error hidden">
+                <div class="error-icon">⚠️</div>
+                <h3>Oops! Something went wrong</h3>
+                <p id="errorMessage"></p>
+                <button id="retryBtn" class="btn btn-secondary">Try Again</button>
+            </div>
+        </main>
+
+        <footer>
+            <p>Powered by Claude AI | Built for Vanderbilt Hackathon</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
