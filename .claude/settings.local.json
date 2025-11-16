@@ -1,31 +1,7 @@
 {
   "permissions": {
     "allow": [
-      "Bash(node --version:*)",
-      "Bash(npm --version:*)",
-      "Bash(npm install)",
-      "Bash(copy \".env.example\" \".env\")",
-      "Bash(npm run build:*)",
-      "Bash(npm test:*)",
-      "Bash(if [ ! -f .env ])",
-      "Bash(then cp .env.example .env)",
-      "Bash(else echo \".env already exists\")",
-      "Bash(fi)",
-      "Bash(npx ts-node:*)",
-      "Bash(curl:*)",
-      "Bash(pkill:*)",
-      "Bash(response.json)",
-      "Bash(cat:*)",
-      "Bash(xxd:*)",
-      "Bash(netstat:*)",
-      "Bash(npm install:*)",
-      "Bash(npm uninstall:*)",
-      "Bash(find:*)",
-      "Bash(npm run dev:*)",
-      "Bash(findstr:*)",
-      "Bash(taskkill:*)",
-      "Bash(PORT=3001 npm run dev:*)",
-      "Bash(PORT=3001 npm start)"
+      "Bash(dir:*)"
     ],
     "deny": [],
     "ask": []

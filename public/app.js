@@ -246,14 +246,16 @@ function displayResults(data) {
         const items = data.clothingAnalysis.items || [];
         wardrobeAnalysis.innerHTML = `
             <p><strong>Overall Style:</strong> ${data.clothingAnalysis.overallStyle || 'Not analyzed'}</p>
-            <p><strong>Color Palette:</strong> ${data.clothingAnalysis.colorPalette?.join(', ') || 'Not analyzed'}</p>
+            <p><strong>Colors Found:</strong> ${data.clothingAnalysis.colorPalette?.join(', ') || 'Not analyzed'}</p>
             ${items.length > 0 ? `
-                <p><strong>Detected Items:</strong></p>
-                <ul>
-                    ${items.map(item => `
-                        <li>${item.type} - ${item.color} (${item.style})</li>
-                    `).join('')}
-                </ul>
+                <details>
+                    <summary>View detected items (${items.length})</summary>
+                    <ul>
+                        ${items.map(item => `
+                            <li>${item.type} - ${item.color}</li>
+                        `).join('')}
+                    </ul>
+                </details>
             ` : ''}
         `;
     } else {
@@ -265,7 +267,7 @@ function displayResults(data) {
     if (data.recommendations && data.recommendations.length > 0) {
         recommendations.innerHTML = `
             <ul>
-                ${data.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                ${data.recommendations.map((rec, idx) => `<li><strong>Outfit ${idx + 1}:</strong> ${rec}</li>`).join('')}
             </ul>
         `;
     } else if (data.analysis) {

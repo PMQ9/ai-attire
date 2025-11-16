@@ -61,7 +61,7 @@ export class RecommenderEngine implements IRecommenderEngine {
 
       // 2. Call Claude API
       const response = await this.claudeService.callClaude(prompt, {
-        maxTokens: 2048, // More tokens for detailed recommendations
+        maxTokens: 1024, // Concise recommendations
         temperature: 0.7, // Balanced creativity and consistency
       });
 
@@ -121,13 +121,14 @@ OCCASION DETAILS:
 - User Preferences: ${occasionContext.preferences?.join(", ") || "None"}
 
 INSTRUCTIONS:
-1. Provide 3-5 specific outfit combinations using items from their wardrobe
-2. Write a brief summary of overall fashion advice for this occasion
-3. Include cultural tips if the location has specific dress code expectations
-4. List what they should avoid wearing for this occasion
+1. Provide 3 SHORT outfit combinations using items from their wardrobe (1-2 sentences each)
+2. Write a brief summary of overall fashion advice for this occasion (1-2 sentences)
+3. Include ONLY essential cultural tips if the location has specific dress code expectations
+4. List only 2 key items to avoid wearing for this occasion
 5. Suggest shopping items ONLY if essential pieces are missing from their wardrobe
 
 IMPORTANT:
+- Keep recommendations BRIEF and CONCISE (1-2 sentences maximum per outfit)
 - Use ONLY the items listed in their wardrobe for outfit recommendations
 - Be specific about which items to combine
 - Consider cultural appropriateness for the location
@@ -138,15 +139,15 @@ Return your response as VALID JSON with this exact structure (no markdown code b
 {
   "occasion": "${occasionContext.occasion}",
   "location": ${occasionContext.location ? `"${occasionContext.location}"` : "null"},
-  "summary": "overall fashion advice for this occasion in 2-3 sentences",
+  "summary": "overall fashion advice for this occasion in 1-2 sentences",
   "recommendations": [
-    "specific outfit combination 1 using their wardrobe items",
-    "specific outfit combination 2 using their wardrobe items",
-    "specific outfit combination 3 using their wardrobe items"
+    "outfit combo 1: brief 1-2 sentence description",
+    "outfit combo 2: brief 1-2 sentence description",
+    "outfit combo 3: brief 1-2 sentence description"
   ],
-  "culturalTips": ["tip 1", "tip 2"] or null if no location-specific tips,
-  "dontWear": ["what to avoid 1", "what to avoid 2"],
-  "shoppingTips": ["essential item to buy 1"] or null if wardrobe is complete
+  "culturalTips": ["essential tip"] or null if no location-specific tips,
+  "dontWear": ["what to avoid 1"],
+  "shoppingTips": ["essential item to buy"] or null if wardrobe is complete
 }`;
   }
 
