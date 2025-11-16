@@ -121,33 +121,39 @@ OCCASION DETAILS:
 - User Preferences: ${occasionContext.preferences?.join(", ") || "None"}
 
 INSTRUCTIONS:
-1. Provide 3 SHORT outfit combinations using items from their wardrobe (1-2 sentences each)
-2. Write a brief summary of overall fashion advice for this occasion (1-2 sentences)
-3. Include ONLY essential cultural tips if the location has specific dress code expectations
-4. List only 2 key items to avoid wearing for this occasion
-5. Suggest shopping items ONLY if essential pieces are missing from their wardrobe
+1. FOCUS: Create 3-5 creative outfit combinations using ONLY items from their existing wardrobe
+   - Each outfit should be 1-2 sentences describing which pieces to wear together
+   - Explain WHY each combination works for this occasion
+   - Help them discover new ways to style what they already own
+2. Provide brief styling advice explaining how to maximize their current wardrobe (1-2 sentences)
+3. Include cultural/location-specific dress tips only if critically important
+4. Suggest 1-2 items to AVOID wearing (style mismatch or cultural inappropriateness)
+5. OPTIONAL: Only suggest shopping for items if there's a critical gap in their wardrobe
+   - Example: "Only if needed: lightweight blazer for formal occasions"
+   - Most users should have sufficient pieces to look great at this event
 
 IMPORTANT:
-- Keep recommendations BRIEF and CONCISE (1-2 sentences maximum per outfit)
-- Use ONLY the items listed in their wardrobe for outfit recommendations
-- Be specific about which items to combine
-- Consider cultural appropriateness for the location
-- Account for weather and formality level
-- Provide actionable, practical advice
+- PRIMARY GOAL: Create great outfits from what they already own
+- Keep outfit recommendations BRIEF (1-2 sentences each)
+- Be SPECIFIC about which wardrobe items to combine (use exact colors/styles)
+- Consider cultural appropriateness, weather, and formality level
+- MINIMIZE shopping suggestions - assume their wardrobe is adequate
+- Focus on styling tips and creative combinations, not on what to buy
+- Provide actionable, practical advice they can use immediately
 
 Return your response as VALID JSON with this exact structure (no markdown code blocks, no extra text):
 {
   "occasion": "${occasionContext.occasion}",
   "location": ${occasionContext.location ? `"${occasionContext.location}"` : "null"},
-  "summary": "overall fashion advice for this occasion in 1-2 sentences",
+  "summary": "how to style their wardrobe for this occasion - focus on creative combinations",
   "recommendations": [
-    "outfit combo 1: brief 1-2 sentence description",
-    "outfit combo 2: brief 1-2 sentence description",
-    "outfit combo 3: brief 1-2 sentence description"
+    "outfit combo 1: specific pieces to wear together and why it works",
+    "outfit combo 2: specific pieces to wear together and why it works",
+    "outfit combo 3: specific pieces to wear together and why it works"
   ],
-  "culturalTips": ["essential tip"] or null if no location-specific tips,
-  "dontWear": ["what to avoid 1"],
-  "shoppingTips": ["essential item to buy"] or null if wardrobe is complete
+  "culturalTips": ["essential dress code requirement"] or null if no critical tips,
+  "dontWear": ["item/style to avoid 1"],
+  "shoppingTips": null (or only include if there's a critical gap like "missing formal shoes")
 }`;
   }
 
