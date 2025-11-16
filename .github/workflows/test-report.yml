@@ -25,9 +25,17 @@ jobs:
     - name: Build project
       run: npm run build
 
-    - name: Run all tests with coverage
-      run: npm test -- --coverage --verbose --forceExit
+    - name: Run all unit tests with coverage (mocks only)
+      run: npm test -- --coverage --verbose --testPathIgnorePatterns=integration
       env:
+        # Empty API key forces unit tests to use mocks
+        CLAUDE_API_KEY: ""
+
+    - name: Run minimal integration tests (optional - only if API key available)
+      if: secrets.CLAUDE_API_KEY != ''
+      run: npm test -- src/__tests__/integration.test.ts --coverage --verbose
+      env:
+        # Only integration tests get the real API key
         CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
 
     - name: Generate coverage badge

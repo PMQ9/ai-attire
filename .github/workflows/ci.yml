@@ -29,14 +29,25 @@ jobs:
     - name: Build project
       run: npm run build
 
-    - name: Run all unit tests
-      run: npm test -- --coverage --verbose
+    - name: Run all unit tests (mocks only - no API calls)
+      run: npm test -- --coverage --verbose --testPathIgnorePatterns=integration
       env:
-        CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
+        # Empty API key forces unit tests to use mocks
+        # Prevents accidental API calls and minimizes cost
+        CLAUDE_API_KEY: ""
 
     - name: Run regression tests
       run: npm test -- tests/regression.test.ts --verbose
       env:
+        # Empty API key forces tests to use mocks
+        CLAUDE_API_KEY: ""
+
+    - name: Run minimal integration tests (optional - only if API key available)
+      if: secrets.CLAUDE_API_KEY != ''
+      run: npm test -- src/__tests__/integration.test.ts --verbose
+      env:
+        # Only integration tests get the real API key
+        # They use maxTokens: 50 to minimize cost (~$0.0005 per run)
         CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
 
     - name: Upload coverage reports
