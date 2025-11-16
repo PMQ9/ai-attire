@@ -18,6 +18,7 @@
 - 🎯 **AI-Powered** - Leverages Claude's vision and language models for intelligent fashion advice
 - 🎤 **Speech-to-Text** - Free voice input using Web Speech API (no additional APIs required)
 - 🌍 **Cultural Intelligence** - Location-specific recommendations and etiquette tips
+- 🌤️ **Weather-Aware** - Optional real-time weather consideration for outfit recommendations
 - 💻 **Full-Stack** - Modern backend API (Express.js) + responsive web UI
 - ⚡ **Production Ready** - Comprehensive error handling, input validation, rate limiting support
 
@@ -253,6 +254,8 @@ npm run clean        # Remove build artifacts
 - ✅ Modern, responsive web UI with gradient design
 - ✅ **File Upload Mode** - Browse and select wardrobe images with drag-and-drop support
 - ✅ **Webcam Capture Mode** - Live photo capture directly from device camera
+- ✅ **Weather Toggle** - Optional real-time weather consideration for recommendations
+- ✅ **Speech-to-Text Input** - Voice description of occasions using Web Speech API
 - ✅ Real-time recommendation display with formatted results
 - ✅ Cultural tips and shopping suggestions display
 - ✅ Error handling and loading states for smooth UX
