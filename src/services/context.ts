@@ -1,18 +1,140 @@
 /**
  * Module 3: Context Parser
  * Parses user input about occasion/location and extracts structured context
- * Dependencies: None
+ * Dependencies: Optional - ClaudeAPIService for AI-powered parsing
  */
 
-import { ContextParser as IContextParser, OccasionContext } from "../types";
+import { ContextParser as IContextParser, OccasionContext, ClaudeAPIService } from "../types";
 
 export class ContextParser implements IContextParser {
+  private claudeService?: ClaudeAPIService;
+  private useAI: boolean = true; // Toggle for AI-powered parsing
+
+  /**
+   * Constructor
+   * @param claudeService Optional Claude API service for AI-powered parsing
+   * @param useAI Whether to use AI parsing (default: true if claudeService provided)
+   */
+  constructor(claudeService?: ClaudeAPIService, useAI: boolean = true) {
+    this.claudeService = claudeService;
+    this.useAI = useAI && !!claudeService;
+  }
+
   /**
    * Parse user input about occasion/location
+   * Uses AI-powered parsing if Claude service is available, falls back to keyword-based
    * @param input User's free-form text describing the occasion
    * @returns Structured OccasionContext
    */
-  parseOccasion(input: string): OccasionContext {
+  async parseOccasion(input: string): Promise<OccasionContext> {
+    // Try AI-powered parsing first if available
+    if (this.useAI && this.claudeService) {
+      try {
+        return await this.parseOccasionWithAI(input);
+      } catch (error) {
+        console.warn("[ContextParser] AI parsing failed, falling back to keyword-based:", error);
+        // Fall through to keyword-based parsing
+      }
+    }
+
+    // Fallback to keyword-based parsing
+    return this.parseOccasionKeywordBased(input);
+  }
+
+  /**
+   * AI-powered context parsing using Claude API
+   * More intelligent extraction with natural language understanding
+   * @param input User's free-form text describing the occasion
+   * @returns Structured OccasionContext
+   */
+  private async parseOccasionWithAI(input: string): Promise<OccasionContext> {
+    if (!this.claudeService) {
+      throw new Error("Claude service not available for AI parsing");
+    }
+
+    const prompt = `You are a fashion context analyzer. Parse the user's input about an occasion and extract structured information.
+
+User input: "${input}"
+
+Extract the following information and return ONLY valid JSON (no other text):
+{
+  "occasion": "string - the event type (wedding, business, workout, party, interview, casual, date, formal event, funeral, gala, beach, outdoor activity, general, etc.)",
+  "location": "string or null - city/country name if mentioned (e.g., 'Japan', 'New York', 'Paris')",
+  "formality": "string - one of: casual, business-casual, formal, athletic",
+  "tone": ["array of style descriptors mentioned: elegant, comfortable, professional, minimalist, modern, classic, sophisticated, etc."],
+  "weatherConsideration": "string or null - one of: hot, cold, rainy, humid, snowy, dry, windy, or null if not mentioned",
+  "culturalNotes": "string or null - cultural or religious considerations based on location or event type",
+  "preferences": ["array of user preferences: breathable, lightweight, warm, fitted, loose, sustainable, luxury, etc."]
+}
+
+Rules:
+- Be precise with occasion types (use common categories)
+- For formality: weddings/funerals/galas/interviews = formal, business/dates = business-casual, workouts = athletic, parties/casual = casual
+- Only include tone/preferences explicitly mentioned
+- Extract weather only if explicitly mentioned (hot, cold, humid, rainy, etc.)
+- For cultural notes, consider location-specific dress codes (Japan = modest, Dubai = conservative, temples = respectful, etc.)
+- Handle negations: if user says "NOT formal" or "don't want business", adjust accordingly
+- Return null for location/weather/culturalNotes if not applicable
+- Return empty arrays for tone/preferences if none mentioned
+
+Return only the JSON object, nothing else.`;
+
+    const response = await this.claudeService.callClaude(prompt, {
+      maxTokens: 500,
+      temperature: 0.3, // Lower temperature for more consistent structured output
+    });
+
+    // Parse JSON response
+    try {
+      // Extract JSON from response (handle cases where Claude adds explanation)
+      const jsonMatch = response.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        throw new Error("No JSON found in Claude response");
+      }
+
+      const parsed = JSON.parse(jsonMatch[0]);
+
+      // Validate and construct OccasionContext
+      const occasionContext: OccasionContext = {
+        occasion: parsed.occasion || "general",
+        location: parsed.location || undefined,
+        formality: this.validateFormality(parsed.formality),
+        tone: Array.isArray(parsed.tone) ? parsed.tone : [],
+        weatherConsideration: parsed.weatherConsideration || undefined,
+        culturalNotes: parsed.culturalNotes || undefined,
+        preferences: Array.isArray(parsed.preferences) ? parsed.preferences : [],
+        rawInput: input,
+      };
+
+      return occasionContext;
+    } catch (parseError) {
+      throw new Error(`Failed to parse Claude JSON response: ${parseError}`);
+    }
+  }
+
+  /**
+   * Validate formality value matches the type
+   */
+  private validateFormality(formality: string): OccasionContext["formality"] {
+    const validFormalities: OccasionContext["formality"][] = [
+      "casual",
+      "business-casual",
+      "formal",
+      "athletic",
+    ];
+    if (validFormalities.includes(formality as OccasionContext["formality"])) {
+      return formality as OccasionContext["formality"];
+    }
+    return "casual"; // Default
+  }
+
+  /**
+   * Keyword-based parsing (original implementation)
+   * Used as fallback when AI parsing is unavailable or fails
+   * @param input User's free-form text describing the occasion
+   * @returns Structured OccasionContext
+   */
+  private parseOccasionKeywordBased(input: string): OccasionContext {
     const lowerInput = input.toLowerCase();
 
     // Extract occasion
