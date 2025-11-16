@@ -32,6 +32,11 @@ const micBtn = document.getElementById('micBtn');
 const speechStatus = document.getElementById('speechStatus');
 const weatherToggle = document.getElementById('weatherToggle');
 
+// Weather toggle - allow clicking description to toggle
+document.querySelector('.toggle-description')?.addEventListener('click', () => {
+    weatherToggle.checked = !weatherToggle.checked;
+});
+
 // Mode switching
 uploadModeBtn.addEventListener('click', () => switchMode('upload'));
 webcamModeBtn.addEventListener('click', () => switchMode('webcam'));
