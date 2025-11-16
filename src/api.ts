@@ -122,6 +122,8 @@ app.post("/analyze", upload.single("image"), async (req, res) => {
     // 4. Return response
     if (process.env.NODE_ENV === "development") {
       console.log("[API] Success! Returning recommendations.");
+      console.log("[API] Response includes outfit images:", !!recommendations.outfitImages);
+      console.log("[API] Number of outfit images:", recommendations.outfitImages?.length || 0);
     }
 
     // Extract formality from the occasion context if available

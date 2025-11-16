@@ -241,6 +241,13 @@ analyzeBtn.addEventListener('click', async () => {
 
 // Display results
 function displayResults(data) {
+    console.log('[Frontend] Received data:', data);
+    console.log('[Frontend] Has outfitImages:', !!data.outfitImages);
+    console.log('[Frontend] Number of outfitImages:', data.outfitImages?.length || 0);
+    if (data.outfitImages) {
+        console.log('[Frontend] Sample outfit image:', data.outfitImages[0]);
+    }
+
     // Occasion details
     const occasionDetails = document.getElementById('occasionDetails');
     occasionDetails.innerHTML = `

@@ -92,13 +92,18 @@ export class RecommenderEngine implements IRecommenderEngine {
       // Fetch outfit images if image search service is available
       if (this.imageSearchService && recommendations.recommendations.length > 0) {
         try {
+          console.log("[Recommender] Fetching outfit images for", recommendations.recommendations.length, "recommendations");
           recommendations.outfitImages = await this.imageSearchService.getImagesForRecommendations(
             recommendations.recommendations
           );
+          console.log("[Recommender] Got", recommendations.outfitImages?.length || 0, "outfit images");
         } catch (imageError) {
           console.warn("[Recommender] Failed to fetch outfit images:", imageError);
           // Continue without images - don't fail the whole request
         }
+      } else {
+        console.log("[Recommender] Image search service:", this.imageSearchService ? "available" : "NOT available");
+        console.log("[Recommender] Recommendations count:", recommendations.recommendations.length);
       }
 
       return recommendations;
@@ -187,13 +192,18 @@ Return only the location or "NONE", nothing else.`;
       // Fetch outfit images if image search service is available
       if (this.imageSearchService && recommendations.recommendations.length > 0) {
         try {
+          console.log("[Recommender] Fetching outfit images for", recommendations.recommendations.length, "recommendations");
           recommendations.outfitImages = await this.imageSearchService.getImagesForRecommendations(
             recommendations.recommendations
           );
+          console.log("[Recommender] Got", recommendations.outfitImages?.length || 0, "outfit images");
         } catch (imageError) {
           console.warn("[Recommender] Failed to fetch outfit images:", imageError);
           // Continue without images - don't fail the whole request
         }
+      } else {
+        console.log("[Recommender] Image search service:", this.imageSearchService ? "available" : "NOT available");
+        console.log("[Recommender] Recommendations count:", recommendations.recommendations.length);
       }
 
       return recommendations;
