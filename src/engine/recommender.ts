@@ -26,7 +26,177 @@ export class RecommenderEngine implements IRecommenderEngine {
   constructor(private claudeService: ClaudeAPIService) {}
 
   /**
-   * Generate personalized fashion recommendations
+   * Generate personalized fashion recommendations with a single API call
+   * This is the most efficient method - sends image + occasion in one request
+   *
+   * @param imageBase64 Base64-encoded clothing image
+   * @param occasionText User's description of the occasion
+   * @returns Complete response with clothing analysis, context, and recommendations
+   *
+   * @example
+   * const result = await recommender.generateRecommendationsWithImage(
+   *   imageBase64,
+   *   "wedding in Japan, formal, hot weather"
+   * );
+   */
+  async generateRecommendationsWithImage(
+    imageBase64: string,
+    occasionText: string
+  ): Promise<RecommendationResponse> {
+    // Validate inputs
+    if (!imageBase64 || imageBase64.trim().length === 0) {
+      throw new Error("Image data (base64) is required");
+    }
+    if (!occasionText || occasionText.trim().length === 0) {
+      throw new Error("Occasion description is required");
+    }
+
+    try {
+      // Build comprehensive prompt that does everything in one call
+      const prompt = this.buildSingleCallPrompt(occasionText);
+
+      // Make single Claude Vision API call
+      const response = await this.claudeService.callClaudeVision(imageBase64, prompt);
+
+      // Parse the comprehensive response
+      const recommendations = this.parseSingleCallResponse(response);
+
+      // Validate response structure
+      this.validateResponse(recommendations);
+
+      return recommendations;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  /**
+   * Build a comprehensive prompt for single-call analysis
+   * Combines clothing analysis, context parsing, and recommendations
+   */
+  private buildSingleCallPrompt(occasionText: string): string {
+    return `You are a professional fashion advisor with expertise in wardrobe analysis, cultural awareness, and occasion-appropriate styling.
+
+TASK: Analyze the clothing image and provide complete fashion recommendations for the user's occasion.
+
+USER'S OCCASION:
+"${occasionText}"
+
+YOUR COMPREHENSIVE ANALYSIS SHOULD:
+
+1. ANALYZE THE CLOTHING IMAGE:
+   - Identify all visible clothing items (type, color, style, material if visible)
+   - Assess overall wardrobe style (formal, casual, sporty, business, etc.)
+   - Note the dominant color palette
+   - Provide a brief summary of what's in their wardrobe
+
+2. UNDERSTAND THE OCCASION:
+   - Extract the event type (wedding, business, workout, party, interview, date, etc.)
+   - Identify location if mentioned (city/country)
+   - Determine formality level (casual, business-casual, formal, athletic)
+   - Note any weather considerations (hot, cold, humid, etc.)
+   - Consider cultural context based on location
+   - Extract style preferences mentioned
+
+3. CREATE OUTFIT RECOMMENDATIONS:
+   - Suggest 3-5 creative outfit combinations using ONLY items from their wardrobe
+   - Each outfit should be 1-2 sentences describing which pieces to wear together and WHY
+   - Focus on helping them style what they already own
+   - Consider the occasion, formality, weather, and cultural appropriateness
+   - Suggest 1-2 items to AVOID wearing
+   - Optional: Only suggest shopping for items if there's a critical gap
+
+IMPORTANT GUIDELINES:
+- PRIMARY GOAL: Create great outfits from what they already own
+- Be SPECIFIC about which wardrobe items to combine (use exact colors/styles from the image)
+- Keep recommendations BRIEF and actionable
+- Consider cultural appropriateness and weather
+- MINIMIZE shopping suggestions - assume their wardrobe is adequate
+- Provide practical advice they can use immediately
+
+Return ONLY valid JSON with this exact structure (no markdown, no extra text):
+{
+  "clothingAnalysis": {
+    "items": [
+      {
+        "type": "clothing item type",
+        "color": "color description",
+        "style": "style classification",
+        "material": "material if visible (optional)",
+        "condition": "condition if notable (optional)"
+      }
+    ],
+    "overallStyle": "overall style assessment",
+    "colorPalette": ["color1", "color2", "color3"],
+    "summary": "brief summary of the wardrobe"
+  },
+  "occasionContext": {
+    "occasion": "event type extracted",
+    "location": "location if mentioned, otherwise null",
+    "formality": "casual | business-casual | formal | athletic",
+    "weatherConsideration": "hot | cold | humid | rainy | etc, or null",
+    "culturalNotes": "cultural considerations based on location, or null"
+  },
+  "occasion": "event type",
+  "location": "location or null",
+  "summary": "how to style their wardrobe for this occasion",
+  "recommendations": [
+    "outfit combo 1: specific pieces to wear together and why",
+    "outfit combo 2: specific pieces to wear together and why",
+    "outfit combo 3: specific pieces to wear together and why"
+  ],
+  "culturalTips": ["essential dress code requirement"] or null,
+  "dontWear": ["item/style to avoid"],
+  "shoppingTips": null or ["only critical gaps"]
+}`;
+  }
+
+  /**
+   * Parse the comprehensive single-call response
+   */
+  private parseSingleCallResponse(response: string): RecommendationResponse {
+    try {
+      // Extract JSON from response
+      const jsonMatch = response.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        throw new Error("No JSON object found in Claude's response");
+      }
+
+      const parsed = JSON.parse(jsonMatch[0]);
+
+      // Build comprehensive response
+      const recommendation: RecommendationResponse = {
+        // Store the full clothing analysis
+        clothingAnalysis: parsed.clothingAnalysis || undefined,
+        // Store the occasion context
+        occasionContext: parsed.occasionContext || undefined,
+        // Main recommendation fields
+        occasion: parsed.occasion || "Unknown",
+        location: parsed.location || undefined,
+        summary: parsed.summary || "",
+        recommendations: Array.isArray(parsed.recommendations)
+          ? parsed.recommendations
+          : [],
+        culturalTips: Array.isArray(parsed.culturalTips)
+          ? parsed.culturalTips
+          : undefined,
+        dontWear: Array.isArray(parsed.dontWear) ? parsed.dontWear : undefined,
+        shoppingTips: Array.isArray(parsed.shoppingTips)
+          ? parsed.shoppingTips
+          : undefined,
+      };
+
+      return recommendation;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(`Failed to parse comprehensive response: ${error.message}`);
+      }
+      throw new Error("Failed to parse comprehensive response: Unknown error");
+    }
+  }
+
+  /**
+   * Generate personalized fashion recommendations (legacy multi-call method)
    *
    * @param request Contains clothing analysis and occasion context
    * @returns Personalized recommendations with outfit suggestions

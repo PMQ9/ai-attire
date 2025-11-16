@@ -109,6 +109,7 @@ export interface RecommendationResponse {
   dontWear?: string[]; // What to avoid wearing
   shoppingTips?: string[]; // If pieces are missing from wardrobe
   clothingAnalysis?: ClothingAnalysis; // Wardrobe analysis from vision service
+  occasionContext?: OccasionContext; // Parsed occasion context
   formality?: string; // Formality level for the occasion
   shoppingSuggestions?: string[]; // Suggested items to purchase
   analysis?: string; // Detailed analysis text

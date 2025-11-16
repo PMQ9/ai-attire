@@ -16,8 +16,9 @@ import dotenv from "dotenv";
 import path from "path";
 
 import { ClaudeService } from "./services/claude";
-import { VisionServiceImpl } from "./services/vision";
-import { ContextParser } from "./services/context";
+// Legacy imports (not needed for single-call flow)
+// import { VisionServiceImpl } from "./services/vision";
+// import { ContextParser } from "./services/context";
 import { RecommenderEngine } from "./engine/recommender";
 
 // Load environment variables
@@ -44,8 +45,9 @@ const upload = multer({
 
 // Initialize services
 const claudeService = new ClaudeService();
-const visionService = new VisionServiceImpl(claudeService);
-const contextParser = new ContextParser(claudeService); // Pass claudeService for AI-powered parsing
+// Legacy services (not needed for single-call flow, but kept for backward compatibility)
+// const visionService = new VisionServiceImpl(claudeService);
+// const contextParser = new ContextParser(claudeService);
 const recommenderEngine = new RecommenderEngine(claudeService);
 
 // Middleware
@@ -95,37 +97,27 @@ app.post("/analyze", upload.single("image"), async (req, res) => {
     // 2. Convert image to base64
     const imageBase64 = req.file.buffer.toString("base64");
 
-    // 3. Analyze clothing (Module 2)
+    // 3. Generate complete recommendations with single API call
     if (process.env.NODE_ENV === "development") {
-      console.log("[API] Analyzing clothing...");
+      console.log("[API] Generating recommendations (single API call)...");
     }
-    const clothingAnalysis = await visionService.analyzeClothing(imageBase64);
+    const recommendations = await recommenderEngine.generateRecommendationsWithImage(
+      imageBase64,
+      occasion
+    );
 
-    // 4. Parse occasion context (Module 3)
-    if (process.env.NODE_ENV === "development") {
-      console.log("[API] Parsing occasion context...");
-    }
-    const occasionContext = await contextParser.parseOccasion(occasion);
-
-    // 5. Generate recommendations (Module 4)
-    if (process.env.NODE_ENV === "development") {
-      console.log("[API] Generating recommendations...");
-    }
-    const recommendations = await recommenderEngine.generateRecommendations({
-      clothingAnalysis,
-      occasionContext,
-    });
-
-    // 6. Return response
+    // 4. Return response
     if (process.env.NODE_ENV === "development") {
       console.log("[API] Success! Returning recommendations.");
     }
 
-    // Merge clothing analysis and formality into the response for frontend display
+    // Extract formality from the occasion context if available
+    const formality = recommendations.occasionContext?.formality || "casual";
+
+    // Merge formality into the response for frontend display
     const response = {
       ...recommendations,
-      clothingAnalysis,
-      formality: occasionContext.formality,
+      formality,
     };
 
     return res.json(response);
