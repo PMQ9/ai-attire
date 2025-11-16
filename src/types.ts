@@ -100,11 +100,21 @@ export interface RecommendationRequest {
   occasionContext: OccasionContext;
 }
 
+export interface OutfitImage {
+  url: string; // Full-size image URL
+  thumbnailUrl: string; // Smaller preview URL
+  description?: string; // Alt text/description
+  photographer?: string; // Credit to photographer
+  photographerUrl?: string; // Link to photographer profile
+  source: "unsplash" | "pexels" | "generated"; // Image source
+}
+
 export interface RecommendationResponse {
   occasion: string;
   location?: string;
   summary: string; // Overall fashion advice
   recommendations: string[]; // Specific outfit suggestions (3-5)
+  outfitImages?: OutfitImage[]; // Images showing the recommended outfits
   culturalTips?: string[]; // Location/culture specific advice
   dontWear?: string[]; // What to avoid wearing
   shoppingTips?: string[]; // If pieces are missing from wardrobe

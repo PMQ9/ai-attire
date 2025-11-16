@@ -294,13 +294,39 @@ function displayResults(data) {
         wardrobeAnalysis.innerHTML = '<p>No analysis available</p>';
     }
 
-    // Recommendations
+    // Recommendations with outfit images
     const recommendations = document.getElementById('recommendations');
     if (data.recommendations && data.recommendations.length > 0) {
+        const hasImages = data.outfitImages && data.outfitImages.length > 0;
+
         recommendations.innerHTML = `
-            <ul>
-                ${data.recommendations.map((rec, idx) => `<li><strong>Outfit ${idx + 1}:</strong> ${rec}</li>`).join('')}
-            </ul>
+            <div class="recommendations-list">
+                ${data.recommendations.map((rec, idx) => {
+                    const image = hasImages && data.outfitImages[idx] ? data.outfitImages[idx] : null;
+
+                    return `
+                        <div class="recommendation-item ${hasImages ? 'with-image' : ''}">
+                            ${image ? `
+                                <div class="outfit-image-container">
+                                    <img src="${image.thumbnailUrl}"
+                                         alt="${image.description || rec}"
+                                         class="outfit-image"
+                                         loading="lazy">
+                                    ${image.photographer ? `
+                                        <p class="image-credit">
+                                            Photo by <a href="${image.photographerUrl}" target="_blank" rel="noopener">${image.photographer}</a>
+                                            ${image.source === 'unsplash' ? ' on Unsplash' : ''}
+                                        </p>
+                                    ` : ''}
+                                </div>
+                            ` : ''}
+                            <div class="outfit-text">
+                                <strong>Outfit ${idx + 1}:</strong> ${rec}
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
         `;
     } else if (data.analysis) {
         recommendations.innerHTML = `<p>${data.analysis}</p>`;

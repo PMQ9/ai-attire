@@ -21,6 +21,7 @@ import { ClaudeService } from "./services/claude";
 // import { ContextParser } from "./services/context";
 import { RecommenderEngine } from "./engine/recommender";
 import { WeatherService } from "./services/weather";
+import { createImageSearchService } from "./services/imageSearch";
 
 // Load environment variables
 dotenv.config();
@@ -50,7 +51,8 @@ const claudeService = new ClaudeService();
 // const visionService = new VisionServiceImpl(claudeService);
 // const contextParser = new ContextParser(claudeService);
 const weatherService = new WeatherService();
-const recommenderEngine = new RecommenderEngine(claudeService, weatherService);
+const imageSearchService = createImageSearchService(); // Use basic Unsplash search
+const recommenderEngine = new RecommenderEngine(claudeService, weatherService, imageSearchService);
 
 // Middleware
 app.use(express.json());

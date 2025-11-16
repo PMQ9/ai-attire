@@ -23,11 +23,13 @@ import {
   WeatherService,
   WeatherData,
 } from "../types";
+import { ImageSearchService } from "../services/imageSearch";
 
 export class RecommenderEngine implements IRecommenderEngine {
   constructor(
     private claudeService: ClaudeAPIService,
-    private weatherService?: WeatherService
+    private weatherService?: WeatherService,
+    private imageSearchService?: ImageSearchService
   ) {}
 
   /**
@@ -86,6 +88,18 @@ export class RecommenderEngine implements IRecommenderEngine {
 
       // Validate response structure
       this.validateResponse(recommendations);
+
+      // Fetch outfit images if image search service is available
+      if (this.imageSearchService && recommendations.recommendations.length > 0) {
+        try {
+          recommendations.outfitImages = await this.imageSearchService.getImagesForRecommendations(
+            recommendations.recommendations
+          );
+        } catch (imageError) {
+          console.warn("[Recommender] Failed to fetch outfit images:", imageError);
+          // Continue without images - don't fail the whole request
+        }
+      }
 
       return recommendations;
     } catch (error) {
@@ -169,6 +183,18 @@ Return only the location or "NONE", nothing else.`;
 
       // Validate response structure
       this.validateResponse(recommendations);
+
+      // Fetch outfit images if image search service is available
+      if (this.imageSearchService && recommendations.recommendations.length > 0) {
+        try {
+          recommendations.outfitImages = await this.imageSearchService.getImagesForRecommendations(
+            recommendations.recommendations
+          );
+        } catch (imageError) {
+          console.warn("[Recommender] Failed to fetch outfit images:", imageError);
+          // Continue without images - don't fail the whole request
+        }
+      }
 
       return recommendations;
     } catch (error) {
@@ -438,7 +464,19 @@ Return ONLY valid JSON with this exact structure (no markdown, no extra text):
       // 4. Validate response structure
       this.validateResponse(recommendations);
 
-      // 5. Return recommendations
+      // 5. Fetch outfit images if image search service is available
+      if (this.imageSearchService && recommendations.recommendations.length > 0) {
+        try {
+          recommendations.outfitImages = await this.imageSearchService.getImagesForRecommendations(
+            recommendations.recommendations
+          );
+        } catch (imageError) {
+          console.warn("[Recommender] Failed to fetch outfit images:", imageError);
+          // Continue without images - don't fail the whole request
+        }
+      }
+
+      // 6. Return recommendations
       return recommendations;
     } catch (error) {
       throw this.handleError(error);
@@ -616,7 +654,8 @@ Return your response as VALID JSON with this exact structure (no markdown code b
  */
 export function createRecommenderEngine(
   claudeService: ClaudeAPIService,
-  weatherService?: WeatherService
+  weatherService?: WeatherService,
+  imageSearchService?: ImageSearchService
 ): IRecommenderEngine {
-  return new RecommenderEngine(claudeService, weatherService);
+  return new RecommenderEngine(claudeService, weatherService, imageSearchService);
 }
