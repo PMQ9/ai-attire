@@ -31,9 +31,13 @@ jobs:
 
     - name: Run all unit tests
       run: npm test -- --coverage --verbose
+      env:
+        CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
 
     - name: Run regression tests
       run: npm test -- tests/regression.test.ts --verbose
+      env:
+        CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
 
     - name: Upload coverage reports
       if: matrix.node-version == '20.x'

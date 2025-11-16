@@ -27,6 +27,8 @@ jobs:
 
     - name: Run all tests with coverage
       run: npm test -- --coverage --verbose --forceExit
+      env:
+        CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
 
     - name: Generate coverage badge
       if: always()
