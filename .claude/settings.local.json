@@ -19,7 +19,13 @@
       "Bash(xxd:*)",
       "Bash(netstat:*)",
       "Bash(npm install:*)",
-      "Bash(npm uninstall:*)"
+      "Bash(npm uninstall:*)",
+      "Bash(find:*)",
+      "Bash(npm run dev:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)",
+      "Bash(PORT=3001 npm run dev:*)",
+      "Bash(PORT=3001 npm start)"
     ],
     "deny": [],
     "ask": []

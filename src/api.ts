@@ -120,7 +120,15 @@ app.post("/analyze", upload.single("image"), async (req, res) => {
     if (process.env.NODE_ENV === "development") {
       console.log("[API] Success! Returning recommendations.");
     }
-    return res.json(recommendations);
+
+    // Merge clothing analysis and formality into the response for frontend display
+    const response = {
+      ...recommendations,
+      clothingAnalysis,
+      formality: occasionContext.formality,
+    };
+
+    return res.json(response);
   } catch (error) {
     console.error("Error in /analyze:", error);
 

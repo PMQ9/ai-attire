@@ -108,6 +108,10 @@ export interface RecommendationResponse {
   culturalTips?: string[]; // Location/culture specific advice
   dontWear?: string[]; // What to avoid wearing
   shoppingTips?: string[]; // If pieces are missing from wardrobe
+  clothingAnalysis?: ClothingAnalysis; // Wardrobe analysis from vision service
+  formality?: string; // Formality level for the occasion
+  shoppingSuggestions?: string[]; // Suggested items to purchase
+  analysis?: string; // Detailed analysis text
 }
 
 export interface RecommenderEngine {
