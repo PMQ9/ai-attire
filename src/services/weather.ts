@@ -109,38 +109,32 @@ export class WeatherService implements IWeatherService {
 
   /**
    * Normalize location names for better geocoding
-   * Handles common location name variations
+   * Handles common abbreviations and punctuation issues
    */
   private normalizeLocationName(location: string): string {
-    // Common location replacements
-    const replacements: Record<string, string> = {
-      "Washington D.C.": "Washington",
-      "Washington DC": "Washington",
-      "D.C.": "Washington",
+    // Only expand common abbreviations that geocoding APIs struggle with
+    // Most full city/country names work fine as-is
+    const abbreviations: Record<string, string> = {
       "NYC": "New York",
       "LA": "Los Angeles",
       "SF": "San Francisco",
-      "UK": "United Kingdom",
-      "USA": "United States",
-      "U.S.": "United States",
-      "U.K.": "United Kingdom",
+      "DC": "Washington",
     };
 
-    // Check for exact matches first
-    if (replacements[location]) {
-      return replacements[location];
+    // Check for abbreviation matches (case insensitive)
+    const upperLocation = location.toUpperCase().trim();
+    if (abbreviations[upperLocation]) {
+      return abbreviations[upperLocation];
     }
 
-    // Check for partial matches (case insensitive)
-    const lowerLocation = location.toLowerCase();
-    for (const [key, value] of Object.entries(replacements)) {
-      if (lowerLocation.includes(key.toLowerCase())) {
-        return value;
-      }
-    }
+    // Remove periods (handles "Washington D.C." → "Washington DC")
+    // Remove extra spaces and trim
+    let normalized = location.replace(/\./g, '').replace(/\s+/g, ' ').trim();
 
-    // Remove periods and normalize spacing
-    return location.replace(/\./g, '').replace(/\s+/g, ' ').trim();
+    // Handle "X DC" or "X D C" pattern (e.g., "Washington DC" → "Washington")
+    normalized = normalized.replace(/\s+D\s*C$/i, '');
+
+    return normalized;
   }
 
   /**
