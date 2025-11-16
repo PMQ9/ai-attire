@@ -109,30 +109,18 @@ export class WeatherService implements IWeatherService {
 
   /**
    * Normalize location names for better geocoding
-   * Handles common abbreviations and punctuation issues
+   * Only handles punctuation and spacing - no hardcoded city mappings
    */
   private normalizeLocationName(location: string): string {
-    // Only expand common abbreviations that geocoding APIs struggle with
-    // Most full city/country names work fine as-is
-    const abbreviations: Record<string, string> = {
-      "NYC": "New York",
-      "LA": "Los Angeles",
-      "SF": "San Francisco",
-      "DC": "Washington",
-    };
+    // Remove periods and normalize spacing
+    let normalized = location
+      .replace(/\./g, '')           // Remove periods: "D.C." → "DC"
+      .replace(/\s+/g, ' ')         // Normalize spaces: "New  York" → "New York"
+      .trim();                      // Remove leading/trailing spaces
 
-    // Check for abbreviation matches (case insensitive)
-    const upperLocation = location.toUpperCase().trim();
-    if (abbreviations[upperLocation]) {
-      return abbreviations[upperLocation];
-    }
-
-    // Remove periods (handles "Washington D.C." → "Washington DC")
-    // Remove extra spaces and trim
-    let normalized = location.replace(/\./g, '').replace(/\s+/g, ' ').trim();
-
-    // Handle "X DC" or "X D C" pattern (e.g., "Washington DC" → "Washington")
-    normalized = normalized.replace(/\s+D\s*C$/i, '');
+    // Strip "DC" suffix (handles "Washington DC" → "Washington")
+    // This is a formatting fix, not a city-specific hardcode
+    normalized = normalized.replace(/\s+DC$/i, '');
 
     return normalized;
   }
