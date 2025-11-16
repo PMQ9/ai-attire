@@ -20,10 +20,15 @@ import {
   RecommenderEngine as IRecommenderEngine,
   RecommendationRequest,
   RecommendationResponse,
+  WeatherService,
+  WeatherData,
 } from "../types";
 
 export class RecommenderEngine implements IRecommenderEngine {
-  constructor(private claudeService: ClaudeAPIService) {}
+  constructor(
+    private claudeService: ClaudeAPIService,
+    private weatherService?: WeatherService
+  ) {}
 
   /**
    * Generate personalized fashion recommendations with a single API call
@@ -31,6 +36,7 @@ export class RecommenderEngine implements IRecommenderEngine {
    *
    * @param imageBase64 Base64-encoded clothing image
    * @param occasionText User's description of the occasion
+   * @param useWeather Optional: whether to fetch and include real-time weather data
    * @returns Complete response with clothing analysis, context, and recommendations
    *
    * @example
@@ -38,10 +44,18 @@ export class RecommenderEngine implements IRecommenderEngine {
    *   imageBase64,
    *   "wedding in Japan, formal, hot weather"
    * );
+   *
+   * @example With weather toggle
+   * const result = await recommender.generateRecommendationsWithImage(
+   *   imageBase64,
+   *   "wedding in Tokyo next week",
+   *   true // fetch real-time weather
+   * );
    */
   async generateRecommendationsWithImage(
     imageBase64: string,
-    occasionText: string
+    occasionText: string,
+    useWeather: boolean = false
   ): Promise<RecommendationResponse> {
     // Validate inputs
     if (!imageBase64 || imageBase64.trim().length === 0) {
@@ -52,6 +66,15 @@ export class RecommenderEngine implements IRecommenderEngine {
     }
 
     try {
+      // If weather toggle is enabled, use two-call flow with weather data
+      if (useWeather && this.weatherService) {
+        return await this.generateRecommendationsWithWeather(
+          imageBase64,
+          occasionText
+        );
+      }
+
+      // Otherwise, use standard single-call flow
       // Build comprehensive prompt that does everything in one call
       const prompt = this.buildSingleCallPrompt(occasionText);
 
@@ -68,6 +91,180 @@ export class RecommenderEngine implements IRecommenderEngine {
     } catch (error) {
       throw this.handleError(error);
     }
+  }
+
+  /**
+   * Generate recommendations with weather data (two-call flow)
+   * Call 1: Extract location from occasion text
+   * Call 2: Generate recommendations with weather context
+   *
+   * @param imageBase64 Base64-encoded clothing image
+   * @param occasionText User's description of the occasion
+   * @returns Complete response with weather-aware recommendations
+   */
+  private async generateRecommendationsWithWeather(
+    imageBase64: string,
+    occasionText: string
+  ): Promise<RecommendationResponse> {
+    try {
+      // Step 1: Extract location from occasion text using Claude
+      if (process.env.NODE_ENV === "development") {
+        console.log("[Recommender] Extracting location from occasion text...");
+      }
+
+      const locationPrompt = `Extract the location (city and/or country) from this text. If there is a location mentioned, return ONLY the location name in the format "City" or "City, Country". If no location is mentioned, return "NONE".
+
+Text: "${occasionText}"
+
+Return only the location or "NONE", nothing else.`;
+
+      const locationResponse = await this.claudeService.callClaude(locationPrompt, {
+        maxTokens: 50,
+        temperature: 0.1,
+      });
+
+      const location = locationResponse.trim();
+
+      // Step 2: If location found, fetch weather data
+      let weatherData: WeatherData | undefined;
+      if (location !== "NONE" && location.length > 0 && this.weatherService) {
+        try {
+          if (process.env.NODE_ENV === "development") {
+            console.log(`[Recommender] Fetching weather for: ${location}`);
+          }
+
+          weatherData = await this.weatherService.getCurrentWeather(location);
+
+          if (process.env.NODE_ENV === "development") {
+            console.log(`[Recommender] Weather fetched: ${weatherData.summary}`);
+          }
+        } catch (weatherError) {
+          // If weather fetch fails, log warning but continue without weather
+          console.warn(`[Recommender] Failed to fetch weather: ${weatherError}`);
+          weatherData = undefined;
+        }
+      }
+
+      // Step 3: Generate recommendations with weather context
+      const prompt = weatherData
+        ? this.buildWeatherAwarePrompt(occasionText, weatherData)
+        : this.buildSingleCallPrompt(occasionText);
+
+      if (process.env.NODE_ENV === "development") {
+        console.log("[Recommender] Generating recommendations with weather context...");
+      }
+
+      const response = await this.claudeService.callClaudeVision(imageBase64, prompt);
+
+      // Parse the response
+      const recommendations = this.parseSingleCallResponse(response);
+
+      // Add weather data to the response
+      if (weatherData) {
+        recommendations.weatherData = weatherData;
+        recommendations.weatherConsidered = true;
+      } else {
+        recommendations.weatherConsidered = false;
+      }
+
+      // Validate response structure
+      this.validateResponse(recommendations);
+
+      return recommendations;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  /**
+   * Build a weather-aware prompt that includes current weather conditions
+   */
+  private buildWeatherAwarePrompt(occasionText: string, weatherData: WeatherData): string {
+    return `You are a professional fashion advisor with expertise in wardrobe analysis, cultural awareness, and occasion-appropriate styling.
+
+TASK: Analyze the clothing image and provide complete fashion recommendations for the user's occasion, taking into account the CURRENT WEATHER CONDITIONS.
+
+USER'S OCCASION:
+"${occasionText}"
+
+CURRENT WEATHER CONDITIONS:
+Location: ${weatherData.location}
+Temperature: ${weatherData.current.temperature}°C (${weatherData.current.temperatureFahrenheit}°F)
+Weather: ${weatherData.current.weatherDescription}
+Humidity: ${weatherData.current.humidity}%
+Wind Speed: ${weatherData.current.windSpeed} km/h
+Precipitation: ${weatherData.current.precipitation}mm
+Summary: ${weatherData.summary}
+
+YOUR COMPREHENSIVE ANALYSIS SHOULD:
+
+1. ANALYZE THE CLOTHING IMAGE:
+   - Identify all visible clothing items (type, color, style, material if visible)
+   - Assess overall wardrobe style (formal, casual, sporty, business, etc.)
+   - Note the dominant color palette
+   - Provide a brief summary of what's in their wardrobe
+
+2. UNDERSTAND THE OCCASION:
+   - Extract the event type (wedding, business, workout, party, interview, date, etc.)
+   - Determine formality level (casual, business-casual, formal, athletic)
+   - Consider cultural context based on location
+   - Extract style preferences mentioned
+
+3. CREATE WEATHER-APPROPRIATE OUTFIT RECOMMENDATIONS:
+   - **CRITICAL**: Factor in the CURRENT WEATHER CONDITIONS (temperature, precipitation, wind, humidity)
+   - Suggest 3-5 creative outfit combinations using ONLY items from their wardrobe
+   - Each outfit should be WEATHER-APPROPRIATE and explain why it works for these conditions
+   - Consider layering for temperature fluctuations
+   - Recommend breathable fabrics for heat, warm layers for cold
+   - Suggest rain-appropriate items if precipitation is expected
+   - Focus on helping them style what they already own FOR THIS WEATHER
+   - Suggest 1-2 items to AVOID wearing (weather-inappropriate or occasion-inappropriate)
+   - Optional: Only suggest shopping for critical weather-related gaps (e.g., umbrella, rain jacket)
+
+IMPORTANT GUIDELINES:
+- **WEATHER IS A PRIMARY FACTOR**: All recommendations must be appropriate for ${weatherData.current.temperature}°C and ${weatherData.current.weatherDescription}
+- Be SPECIFIC about which wardrobe items to combine (use exact colors/styles from the image)
+- Explain WHY each outfit works for BOTH the occasion AND the weather
+- Keep recommendations BRIEF and actionable
+- Consider cultural appropriateness alongside weather
+- MINIMIZE shopping suggestions - work with their wardrobe
+- Provide practical advice they can use immediately
+
+Return ONLY valid JSON with this exact structure (no markdown, no extra text):
+{
+  "clothingAnalysis": {
+    "items": [
+      {
+        "type": "clothing item type",
+        "color": "color description",
+        "style": "style classification",
+        "material": "material if visible (optional)",
+        "condition": "condition if notable (optional)"
+      }
+    ],
+    "overallStyle": "overall style assessment",
+    "colorPalette": ["color1", "color2", "color3"],
+    "summary": "brief summary of the wardrobe"
+  },
+  "occasionContext": {
+    "occasion": "event type extracted",
+    "location": "${weatherData.location}",
+    "formality": "casual | business-casual | formal | athletic",
+    "weatherConsideration": "${weatherData.current.weatherDescription}",
+    "culturalNotes": "cultural considerations based on location, or null"
+  },
+  "occasion": "event type",
+  "location": "${weatherData.location}",
+  "summary": "how to style their wardrobe for this occasion IN THESE WEATHER CONDITIONS",
+  "recommendations": [
+    "outfit combo 1: specific pieces to wear together and why it works for the weather and occasion",
+    "outfit combo 2: specific pieces to wear together and why it works for the weather and occasion",
+    "outfit combo 3: specific pieces to wear together and why it works for the weather and occasion"
+  ],
+  "culturalTips": ["essential dress code requirement"] or null,
+  "dontWear": ["item/style to avoid - include weather-inappropriate items"],
+  "shoppingTips": null or ["only critical weather-related gaps if absolutely necessary"]
+}`;
   }
 
   /**
@@ -418,7 +615,8 @@ Return your response as VALID JSON with this exact structure (no markdown code b
  * Useful for dependency injection
  */
 export function createRecommenderEngine(
-  claudeService: ClaudeAPIService
+  claudeService: ClaudeAPIService,
+  weatherService?: WeatherService
 ): IRecommenderEngine {
-  return new RecommenderEngine(claudeService);
+  return new RecommenderEngine(claudeService, weatherService);
 }

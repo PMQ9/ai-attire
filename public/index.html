@@ -75,6 +75,15 @@
                 </div>
                 <p class="input-hint">Describe where you're going, the formality level, climate, or any preferences</p>
                 <p id="speechStatus" class="speech-status hidden"></p>
+
+                <!-- Weather Toggle -->
+                <div class="weather-toggle">
+                    <label class="toggle-label">
+                        <input type="checkbox" id="weatherToggle" />
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="toggle-description">🌤️ Consider current weather</span>
+                </div>
             </div>
 
             <!-- Analyze Button -->
@@ -95,6 +104,11 @@
                 <div class="result-card">
                     <h3>📍 Occasion Details</h3>
                     <div id="occasionDetails"></div>
+                </div>
+
+                <div class="result-card" id="weatherCard">
+                    <h3>🌤️ Current Weather</h3>
+                    <div id="weatherInfo"></div>
                 </div>
 
                 <div class="result-card">

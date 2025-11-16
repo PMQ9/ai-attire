@@ -113,6 +113,8 @@ export interface RecommendationResponse {
   formality?: string; // Formality level for the occasion
   shoppingSuggestions?: string[]; // Suggested items to purchase
   analysis?: string; // Detailed analysis text
+  weatherData?: WeatherData; // Weather data if weather toggle was used
+  weatherConsidered?: boolean; // Whether weather was factored into recommendations
 }
 
 export interface RecommenderEngine {
@@ -127,6 +129,49 @@ export interface RecommenderEngine {
 }
 
 // ============================================================================
+// Weather Service Types
+// ============================================================================
+
+export interface WeatherData {
+  location: string; // Location name (city/country)
+  coordinates: {
+    latitude: number;
+    longitude: number;
+  };
+  current: {
+    temperature: number; // Celsius
+    temperatureFahrenheit: number; // Fahrenheit
+    weatherCode: number; // WMO weather code
+    weatherDescription: string; // Human-readable description
+    windSpeed: number; // km/h
+    humidity: number; // percentage
+    precipitation: number; // mm
+  };
+  summary: string; // Human-readable weather summary
+}
+
+export interface WeatherService {
+  /**
+   * Get current weather for a location
+   * @param location City name or "City, Country" format
+   * @returns Current weather data
+   */
+  getCurrentWeather(location: string): Promise<WeatherData>;
+
+  /**
+   * Geocode a location to coordinates
+   * @param location Location string
+   * @returns Coordinates and standardized location name
+   */
+  geocodeLocation(location: string): Promise<{
+    name: string;
+    latitude: number;
+    longitude: number;
+    country: string;
+  }>;
+}
+
+// ============================================================================
 // API Types (Module 5)
 // ============================================================================
 
@@ -134,6 +179,7 @@ export interface AnalyzeRequest {
   image: Buffer; // Image file from multipart form
   occasion: string; // User's description of occasion
   preferences?: string; // Optional: user style preferences
+  useWeather?: boolean; // Optional: whether to fetch and include weather data
 }
 
 export interface ApiErrorResponse {
