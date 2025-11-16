@@ -26,6 +26,18 @@
 
 User uploads image of their wardrobe → Describes occasion (e.g., "business meeting in Tokyo") → Claude Vision analyzes clothing → AI synthesizes recommendations → Get personalized outfit advice with cultural tips & shopping suggestions
 
+## 🎨 User Interface Preview
+
+### Input Screen
+Upload your wardrobe photo and describe your occasion:
+
+<img src="utils/ui_input.png" width="60%">
+
+### Output Screen
+Get personalized recommendations with wardrobe analysis and outfit suggestions:
+
+<img src="utils/ui_output.png" width="60%">
+
 ## 🏗️ Modular Architecture
 
 This project is designed for **parallel development**. Each module below is independent and can be worked on simultaneously:
