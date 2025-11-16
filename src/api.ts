@@ -20,6 +20,7 @@ import { ClaudeService } from "./services/claude";
 // import { VisionServiceImpl } from "./services/vision";
 // import { ContextParser } from "./services/context";
 import { RecommenderEngine } from "./engine/recommender";
+import { WeatherService } from "./services/weather";
 
 // Load environment variables
 dotenv.config();
@@ -48,7 +49,8 @@ const claudeService = new ClaudeService();
 // Legacy services (not needed for single-call flow, but kept for backward compatibility)
 // const visionService = new VisionServiceImpl(claudeService);
 // const contextParser = new ContextParser(claudeService);
-const recommenderEngine = new RecommenderEngine(claudeService);
+const weatherService = new WeatherService();
+const recommenderEngine = new RecommenderEngine(claudeService, weatherService);
 
 // Middleware
 app.use(express.json());
@@ -89,21 +91,30 @@ app.post("/analyze", upload.single("image"), async (req, res) => {
       });
     }
 
+    // Get optional weather toggle (defaults to false)
+    const useWeather = req.body.useWeather === "true" || req.body.useWeather === true;
+
     if (process.env.NODE_ENV === "development") {
       console.log(`[API] Received request: ${occasion}`);
       console.log(`[API] Image size: ${req.file.size} bytes`);
+      console.log(`[API] Weather toggle: ${useWeather}`);
     }
 
     // 2. Convert image to base64
     const imageBase64 = req.file.buffer.toString("base64");
 
-    // 3. Generate complete recommendations with single API call
+    // 3. Generate complete recommendations
     if (process.env.NODE_ENV === "development") {
-      console.log("[API] Generating recommendations (single API call)...");
+      if (useWeather) {
+        console.log("[API] Generating recommendations with weather data (two API calls)...");
+      } else {
+        console.log("[API] Generating recommendations (single API call)...");
+      }
     }
     const recommendations = await recommenderEngine.generateRecommendationsWithImage(
       imageBase64,
-      occasion
+      occasion,
+      useWeather
     );
 
     // 4. Return response
