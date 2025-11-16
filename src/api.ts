@@ -45,7 +45,7 @@ const upload = multer({
 // Initialize services
 const claudeService = new ClaudeService();
 const visionService = new VisionServiceImpl(claudeService);
-const contextParser = new ContextParser();
+const contextParser = new ContextParser(claudeService); // Pass claudeService for AI-powered parsing
 const recommenderEngine = new RecommenderEngine(claudeService);
 
 // Middleware
@@ -105,7 +105,7 @@ app.post("/analyze", upload.single("image"), async (req, res) => {
     if (process.env.NODE_ENV === "development") {
       console.log("[API] Parsing occasion context...");
     }
-    const occasionContext = contextParser.parseOccasion(occasion);
+    const occasionContext = await contextParser.parseOccasion(occasion);
 
     // 5. Generate recommendations (Module 4)
     if (process.env.NODE_ENV === "development") {

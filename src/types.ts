@@ -86,9 +86,9 @@ export interface ContextParser {
   /**
    * Parse user input about occasion/location
    * @param input User's free-form text about occasion
-   * @returns Structured OccasionContext
+   * @returns Structured OccasionContext (async with AI parsing, or sync with keyword-based fallback)
    */
-  parseOccasion(input: string): OccasionContext;
+  parseOccasion(input: string): Promise<OccasionContext>;
 }
 
 // ============================================================================
