@@ -47,29 +47,115 @@ ai-attire/
 | **4. Recommender Engine** | `src/engine/recommender.ts` | Combine vision + context → personalized advice | ✅ |
 | **5. API Server** | `src/api.ts` | Express endpoints to tie everything together | ✅ |
 
-## 🚀 Quick Start
+## 🚀 Getting Started
 
-**New to this project?** Read **[DEVELOPMENT_GUIDE.md](DEVELOPMENT_GUIDE.md)** - it has everything you need including:
-- 5-minute quick start
-- How to pick a module
-- Complete workflow for parallel development
-- Module specifications and guidelines
+### Prerequisites
 
-### Quick Setup
+- **Node.js** 18.0.0 or higher ([Download](https://nodejs.org/))
+- **Claude API Key** from [Anthropic](https://console.anthropic.com/)
+- A modern web browser (Chrome, Firefox, Safari, Edge)
+
+### Installation & Setup (5 minutes)
+
+#### 1. Clone & Install Dependencies
 ```bash
+git clone <repository-url>
+cd ai-attire
 npm install
-cp .env.example .env
-# Edit .env and add: CLAUDE_API_KEY=your_key_here
 ```
 
-### Run API Server
+#### 2. Configure Environment
+```bash
+cp .env.example .env
+```
+
+Then edit `.env` and add your Claude API key:
+```
+CLAUDE_API_KEY=sk-ant-YOUR_API_KEY_HERE
+PORT=3000
+```
+
+#### 3. Start the App
 ```bash
 npm run dev
+```
 
-# Example request:
+You should see:
+```
+Server running on http://localhost:3000
+```
+
+#### 4. Open in Browser
+Navigate to **http://localhost:3000** in your web browser.
+
+### Using the App
+
+1. **Choose your input method**:
+   - 📷 **Upload Image**: Select a photo of your wardrobe from your computer
+   - 🎥 **Webcam**: Capture a photo directly using your device's camera
+
+2. **Describe the occasion**:
+   - "Business meeting in Tokyo"
+   - "Beach vacation"
+   - "Wedding in India"
+   - Or any other occasion
+
+3. **Get AI-powered recommendations**:
+   - View wardrobe analysis
+   - Get specific outfit recommendations
+   - Learn cultural tips for your location
+   - Discover shopping suggestions
+
+### API Usage (for developers)
+
+If you prefer to use the API directly:
+
+```bash
+# Analyze wardrobe with image and occasion
 curl -X POST http://localhost:3000/analyze \
-  -F "image=@clothing.jpg" \
+  -F "image=@path/to/clothing.jpg" \
   -F "occasion=wedding in Japan"
+
+# Response includes:
+# - Wardrobe analysis
+# - Outfit recommendations
+# - Cultural tips
+# - Shopping suggestions
+```
+
+### Troubleshooting
+
+**"API key not found" error**
+- Make sure `.env` file exists and contains `CLAUDE_API_KEY`
+- Restart the server after updating `.env`
+
+**Port 3000 already in use**
+- Set a different port: `PORT=3001 npm run dev`
+- Or kill the process using port 3000
+
+**Webcam not working**
+- Check browser permissions for camera access
+- Use HTTPS or localhost (required for security)
+- Works best in Chrome, Firefox, and Safari
+
+---
+
+### For Developers
+
+**New to this project?** Read **[DEVELOPMENT_GUIDE.md](DEVELOPMENT_GUIDE.md)** - it has everything you need including:
+- How to pick a module to work on
+- Complete workflow for parallel development
+- Module specifications and implementation guides
+
+```bash
+# Run tests
+npm test
+
+# Build for production
+npm run build
+
+# Start production build
+npm start
 ```
 
 ### Current Status: COMPLETE ✅
