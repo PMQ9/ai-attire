@@ -28,6 +28,8 @@ const errorState = document.getElementById('errorState');
 const errorMessage = document.getElementById('errorMessage');
 const retryBtn = document.getElementById('retryBtn');
 const newAnalysisBtn = document.getElementById('newAnalysisBtn');
+const micBtn = document.getElementById('micBtn');
+const speechStatus = document.getElementById('speechStatus');
 
 // Mode switching
 uploadModeBtn.addEventListener('click', () => switchMode('upload'));
@@ -338,6 +340,90 @@ newAnalysisBtn.addEventListener('click', () => {
     // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
 });
+
+// Speech Recognition
+let recognition = null;
+let isListening = false;
+
+// Check if browser supports speech recognition
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+if (SpeechRecognition) {
+    recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+
+    recognition.onstart = () => {
+        isListening = true;
+        micBtn.classList.add('listening');
+        speechStatus.textContent = '🎤 Listening... Speak now!';
+        speechStatus.classList.remove('hidden');
+    };
+
+    recognition.onresult = (event) => {
+        let transcript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+            transcript += event.results[i][0].transcript;
+        }
+
+        // Update textarea with transcribed text
+        occasionInput.value = transcript;
+        checkFormValidity();
+    };
+
+    recognition.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        isListening = false;
+        micBtn.classList.remove('listening');
+
+        let errorMsg = 'Speech recognition error';
+        switch(event.error) {
+            case 'no-speech':
+                errorMsg = '⚠️ No speech detected. Please try again.';
+                break;
+            case 'not-allowed':
+                errorMsg = '⚠️ Microphone access denied. Please enable microphone permissions.';
+                break;
+            case 'network':
+                errorMsg = '⚠️ Network error. Please check your connection.';
+                break;
+            default:
+                errorMsg = `⚠️ ${event.error}`;
+        }
+
+        speechStatus.textContent = errorMsg;
+        setTimeout(() => {
+            speechStatus.classList.add('hidden');
+        }, 3000);
+    };
+
+    recognition.onend = () => {
+        isListening = false;
+        micBtn.classList.remove('listening');
+        speechStatus.textContent = '✓ Done! You can edit the text or speak again.';
+        setTimeout(() => {
+            speechStatus.classList.add('hidden');
+        }, 3000);
+    };
+
+    micBtn.addEventListener('click', () => {
+        if (isListening) {
+            recognition.stop();
+        } else {
+            try {
+                recognition.start();
+            } catch (error) {
+                console.error('Error starting recognition:', error);
+                showError('Could not start speech recognition. Please try again.');
+            }
+        }
+    });
+} else {
+    // Browser doesn't support speech recognition
+    micBtn.style.display = 'none';
+    console.warn('Speech recognition not supported in this browser');
+}
 
 // Initialize
 checkFormValidity();

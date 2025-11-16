@@ -63,12 +63,18 @@
             <!-- Occasion Input -->
             <div class="occasion-section">
                 <label for="occasionInput">What's the occasion?</label>
-                <textarea
-                    id="occasionInput"
-                    placeholder="E.g., 'Business meeting in Tokyo', 'Casual dinner date', 'Beach wedding in Thailand'"
-                    rows="3"
-                ></textarea>
+                <div class="occasion-input-wrapper">
+                    <textarea
+                        id="occasionInput"
+                        placeholder="E.g., 'Business meeting in Tokyo', 'Casual dinner date', 'Beach wedding in Thailand'"
+                        rows="3"
+                    ></textarea>
+                    <button id="micBtn" class="mic-btn" type="button" title="Use voice input">
+                        🎤
+                    </button>
+                </div>
                 <p class="input-hint">Describe where you're going, the formality level, climate, or any preferences</p>
+                <p id="speechStatus" class="speech-status hidden"></p>
             </div>
 
             <!-- Analyze Button -->
