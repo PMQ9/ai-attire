@@ -30,6 +30,7 @@ const retryBtn = document.getElementById('retryBtn');
 const newAnalysisBtn = document.getElementById('newAnalysisBtn');
 const micBtn = document.getElementById('micBtn');
 const speechStatus = document.getElementById('speechStatus');
+const weatherToggle = document.getElementById('weatherToggle');
 
 // Mode switching
 uploadModeBtn.addEventListener('click', () => switchMode('upload'));
@@ -207,6 +208,7 @@ analyzeBtn.addEventListener('click', async () => {
         const formData = new FormData();
         formData.append('image', selectedImage);
         formData.append('occasion', occasionInput.value.trim());
+        formData.append('useWeather', weatherToggle.checked);
 
         // Call API
         const response = await fetch('/analyze', {
@@ -241,6 +243,29 @@ function displayResults(data) {
         <p><strong>Location:</strong> ${data.location || 'Not specified'}</p>
         <p><strong>Formality:</strong> ${data.formality || 'Not specified'}</p>
     `;
+
+    // Weather information (if available)
+    const weatherCard = document.getElementById('weatherCard');
+    const weatherInfo = document.getElementById('weatherInfo');
+    if (data.weatherData && data.weatherConsidered) {
+        const weather = data.weatherData;
+        weatherInfo.innerHTML = `
+            <div class="weather-display">
+                <p class="weather-summary">☁️ ${weather.summary}</p>
+                <div class="weather-details">
+                    <p><strong>📍 Location:</strong> ${weather.location}</p>
+                    <p><strong>🌡️ Temperature:</strong> ${weather.current.temperature}°C (${weather.current.temperatureFahrenheit}°F)</p>
+                    <p><strong>💧 Humidity:</strong> ${weather.current.humidity}%</p>
+                    <p><strong>💨 Wind Speed:</strong> ${weather.current.windSpeed} km/h</p>
+                    ${weather.current.precipitation > 0 ? `<p><strong>🌧️ Precipitation:</strong> ${weather.current.precipitation}mm</p>` : ''}
+                </div>
+                <p class="weather-note">✅ Recommendations are weather-aware</p>
+            </div>
+        `;
+        weatherCard.style.display = 'block';
+    } else {
+        weatherCard.style.display = 'none';
+    }
 
     // Wardrobe analysis
     const wardrobeAnalysis = document.getElementById('wardrobeAnalysis');
