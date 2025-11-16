@@ -13,6 +13,7 @@
 import express from "express";
 import multer from "multer";
 import dotenv from "dotenv";
+import path from "path";
 
 import { ClaudeService } from "./services/claude";
 import { VisionServiceImpl } from "./services/vision";
@@ -49,6 +50,9 @@ const recommenderEngine = new RecommenderEngine(claudeService);
 
 // Middleware
 app.use(express.json());
+
+// Serve static frontend files
+app.use(express.static(path.join(__dirname, '../public')));
 
 // Health check endpoint
 app.get("/health", (_req, res) => {
