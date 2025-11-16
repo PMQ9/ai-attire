@@ -78,8 +78,11 @@ export class WeatherService implements IWeatherService {
     longitude: number;
     country: string;
   }> {
+    // Normalize location name for better geocoding results
+    const normalizedLocation = this.normalizeLocationName(location);
+
     const geoUrl = new URL(this.GEOCODING_API);
-    geoUrl.searchParams.set("name", location);
+    geoUrl.searchParams.set("name", normalizedLocation);
     geoUrl.searchParams.set("count", "1");
     geoUrl.searchParams.set("language", "en");
     geoUrl.searchParams.set("format", "json");
@@ -102,6 +105,42 @@ export class WeatherService implements IWeatherService {
       longitude: result.longitude,
       country: result.country || "Unknown",
     };
+  }
+
+  /**
+   * Normalize location names for better geocoding
+   * Handles common location name variations
+   */
+  private normalizeLocationName(location: string): string {
+    // Common location replacements
+    const replacements: Record<string, string> = {
+      "Washington D.C.": "Washington",
+      "Washington DC": "Washington",
+      "D.C.": "Washington",
+      "NYC": "New York",
+      "LA": "Los Angeles",
+      "SF": "San Francisco",
+      "UK": "United Kingdom",
+      "USA": "United States",
+      "U.S.": "United States",
+      "U.K.": "United Kingdom",
+    };
+
+    // Check for exact matches first
+    if (replacements[location]) {
+      return replacements[location];
+    }
+
+    // Check for partial matches (case insensitive)
+    const lowerLocation = location.toLowerCase();
+    for (const [key, value] of Object.entries(replacements)) {
+      if (lowerLocation.includes(key.toLowerCase())) {
+        return value;
+      }
+    }
+
+    // Remove periods and normalize spacing
+    return location.replace(/\./g, '').replace(/\s+/g, ' ').trim();
   }
 
   /**
